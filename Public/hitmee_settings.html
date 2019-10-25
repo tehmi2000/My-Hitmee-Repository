@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=7">
+    <title>HITMEE | Your Account Settings</title>
+
+    <link rel="shortcut icon" href="images/fav-icon.png" type="image/x-icon">
+    <link rel="stylesheet" href="images/icofont/icofont.min.css">
+    <link rel="stylesheet" type="text/css" href='css/hitmee.css'>
+    <link rel="stylesheet" type="text/css" href="css/hitmee_settings.css">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type='text/javascript' src='js/hitmee.js'></script>
+    <!-- <script type='text/javascript' src='js/hitmee_setting.js'></script> -->
+</head>
+
+<body><!--onload="init_settings()"-->
+    <div class="main" id="main-container">
+        <header class="header" id="contact_header">
+            <div class="backbutton b1" onclick="navigatePage('chats')"><i class="icofont-rounded-left"></i></div>
+            <div>SETTINGS</div>
+        </header>
+        <div class="hitmee_frame" id="c1">
+
+            <div class="profile-box" id="profile-box">
+                <form action="/update_settings" method="post" enctype="multipart/form-data" onsubmit="return changeFilename()">
+                    <fieldset>
+                        <div class="image-edit">
+
+                            <section class="">
+                                <fieldset class="field-row-1">
+                                    <legend>Change your profile picture</legend>
+
+                                    <div class="fr1-wrapper-1">
+                                        <div class="fr1-col-1">
+                                            <img src="" id='preview-picture' class="preview-picture">
+                                            <div>
+                                                <label for="p_upload" class="label"></label>
+                                                <input type="file" name="picture_upload" id="p_upload" accept="image/*">
+                                            </div>
+                                            <span id="dp_status"></span>
+                                        </div>
+
+                                        <div class="fr1-col-2">
+                                            <span style="color: rgb(110, 180, 230);">ABOUT:<button id="enable_edit" class="right"><img style="width: 14px;height:14px;" src="images/Edit.png" alt="h"/>Edit profile</button><hr></span>
+                                            <span style="color: rgb(55, 90, 55);" id="bio_display"></span>
+                                            <span>
+                                        			<a href="#" class="left" id="phone_display"></a>
+                                        			<a href="#" class="right" id="email_display"></a>
+                                        		</span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="fr1-wrapper-2">
+                                        <div>
+                                            <span><input type="radio" name="solid_wall" value="image" checked/>Use custom image as wallpaper</span>
+                                            <img src="" id="preview-wall" class="preview-wall">
+                                            <div>
+                                                <label for="wp_upload" class="label">Choose file...</label>
+                                                <input type="file" name="wp_upload" id="wp_upload" accept="image/*" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                            </section>
+
+                        </div>
+
+                        <div>
+                            <input type="submit" value="Save Changes">
+                        </div>
+                    </fieldset>
+                </form>
+
+                <form action="/update_settings" method="post" onsubmit="return check()">
+                    <fieldset>
+                        <div class="details-edit">
+                            <table cellspacing="30px">
+                                <tr>
+                                    <td><label for="bio">About You:</label></td>
+                                    <td><textarea cols="20" rows="3" maxlength="200" name="bio" id='bio' placeholder="Type something about you..." disabled>I am new to Hitmee</textarea></td>
+                                </tr>
+
+                                <tr>
+                                    <td><label for="phone_no">Phone Number:</label></td>
+
+                                    <td style="display:flex; flex-direction:row;">
+                                        <select name="tel_code" id="tel_code" disabled>
+                                                <option value="+93">Afghanistan(+93)</option>
+                                                <option value="+213">Algeria(+213)</option>
+                                                <option value="+376">Andorra(+376)</option>
+                                                <option value="+244">Angola(+244)</option>
+                                                <option value="+54">Argentina(+54)</option>
+                                                <option value="+374">Armenia(+374)</option>
+                                                <option value="+297">Aruba(+297)</option>
+                                                <option value="+61">Australia(+61)</option>
+                                                <option value="+43">Austria(+43)</option>
+                                                <option value="+994">Azerbaijan(+994)</option>
+                                                <option value="+1242">Bahamas(+1242)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                                <option value="+234">Nigeria(+234)</option>
+                                            </select>
+                                        <input type="text" name="phone_no" id="phone_no" placeholder="Ex: 000-0000-0000" value="0810-000-0000" maxlength="14" disabled required>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td><label for="email">Email address:</label></td>
+                                    <td><input type="email" name="email" id='email' placeholder="Ex: JohnDoe@coolmail.com" value="example@coolmail.com" required disabled></td>
+                                </tr>
+                            </table>
+
+                        </div>
+
+                        <div class="details-edit_button">
+                            <input type="submit" value="Save">
+                            <input type="reset">
+                        </div>
+                    </fieldset>
+                </form>
+
+                <fieldset>
+                    <legend>Delete your account</legend>
+                    <div class="account_destroy_container">
+                        <span>
+                            This action is irreversible and cannot be undone.
+                            Make sure you are certain you want to proceed with
+                            deleting your account. Deleting your account will
+                            erase chats, data, media, and presence to all friends.
+                        </span>
+                        <form action="destroy_account" method="get">
+                            <button id="account_destroy_button">Delete Account</button>
+                        </form>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="foot_note" id="foot_note">
+                <i>----The end of the page----</i>
+            </div>
+        </div>
+
+</body>
+
+</html>

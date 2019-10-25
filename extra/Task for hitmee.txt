@@ -1,0 +1,7 @@
+Next task include
+
+1. Adding a friend game to play with anyone
+2. Adding to lazy loading functionality for images
+3. Also store images in the local storage and pass a reference id to the image placeholder for retrieving its image
+4. Update the ui for the chatroom
+5. Make images and videos downloadable and not automatically stored to save data.

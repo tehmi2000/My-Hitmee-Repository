@@ -1,0 +1,305 @@
+#main-container{
+	background-color: #eee;
+}
+
+.chatbox {
+	flex-direction: column;
+	width:80%;
+	min-height: auto;
+	margin:5px auto;
+	border: 4px solid #048a04;
+	border-radius: 0 0 5px 5px;
+	box-shadow: 2px 2px 3px #636363;
+}
+
+.hitmee_frame{
+	height: 90vh;
+}
+
+.image-edit > section{
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.profile-box{
+    height: auto;
+    overflow-y: scroll;
+}
+
+#username{
+    text-align: center;
+    border: 1px solid rgb(134, 157, 177);
+    margin:auto;
+    position: sticky;
+    top:0;
+    background: linear-gradient(rgb(136, 156, 87), rgba(0, 128, 0, 0.911), rgb(146, 196, 97));
+    color: whitesmoke;
+    box-shadow: 2px 2px 2px rgb(53, 52, 52);
+}
+
+fieldset{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+    border: 1px solid #bbb;
+    margin: 10px 5px 10px 5px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: whitesmoke;
+}
+
+.image-edit section .fr1-wrapper-1{
+	padding:4px;
+	display: flex;
+	flex-direction: row;
+}
+
+#dp_status{
+	display: none;
+	background-color: rgba(0, 160, 0, 0.4);
+	padding: 6px;
+	border-radius:8px;
+	text-align: center;
+}
+
+.fr1-wrapper-1 .fr1-col-1{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 35%;
+}
+
+.fr1-wrapper-1 .fr1-col-2{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	width:65%;
+	padding-left: 40px;
+}
+
+.image-edit section .fr1-wrapper-2{
+	margin:auto;
+	padding:14px;
+	display: flex;
+	flex-direction: row;
+	width: 90%;
+	justify-content: space-between;
+}
+
+.image-edit section .fr1-wrapper-2 *{
+	display: block;
+}
+ a:link{
+ 	color: green;
+ }
+ 
+.left{
+	float:left;
+}
+
+.right{
+	float: right;
+}
+
+#enable_edit{
+	background-color: transparent;
+	border: 2px solid #ccc;
+	padding: 15px 11px;
+}
+
+.welcome{
+    display: flex;
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    background-color: #88d188;
+    background-image: url('../images/info-filled_green.png');
+    background-repeat: no-repeat;
+    background-position-x: 10px;
+    background-position-y: center;
+    margin:20px auto;
+    border-radius: 25px;
+    box-sizing: border-box;
+    text-align: center;
+    color:rgb(23, 61, 21);
+    font-size: 1.0em;
+}
+
+.welcome p{
+    font-size: 1.0em;
+}
+
+.details-edit{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin:5px auto;
+    width: 97%;
+}
+
+.details-edit table{
+    margin: 5px auto;
+    box-sizing: border-box;
+    width: 90%;
+}
+
+.label{
+    color: white;
+}
+
+label[for="p_upload"]{
+	cursor: pointer;
+	display:inline-block;
+	padding: 10px;
+	background-color: green;
+	margin-top: -40pt;
+	margin-left: 64.5%;
+	z-index: +50;
+	border-radius:50%;
+	background-image:url("../images/Edit.png");
+	background-position:center;
+	background-repeat:no-repeat;
+	background-size:60%;
+	width: 50px;
+	height: 50px;
+	box-shadow: 2px 2px 2px rgb(131, 130, 130);
+	box-sizing: border-box;
+}
+
+label[for="p_upload"]:hover{
+	background-color:rgb(0, 100, 0);
+}
+
+input[id="p_upload"]{
+	width: 0.1px;
+	height: 0.1px;
+	position: absolute;
+	opacity: 0;
+}
+
+input[type='submit'], input[type='reset']{
+	box-sizing:border-box;
+	border-radius: 5px;
+	padding: 15px;
+	margin:10px 0 9px 0;
+    float: right;
+    border: none;
+    background-color: rgb(50, 120, 50);
+    color: white;
+    font-size: 1.1em;
+    box-shadow: 2px 2px 2px rgb(131, 130, 130);
+}
+
+.details-edit_button{
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	justify-content:space-around;
+}
+
+.details-edit_button input{
+	width: 45%;
+	margin:0 0 9px 0;
+}
+
+.colors input[type="color"]{
+	outline: none;
+	display: block;
+	width:30px;
+	height: 30px;
+	border: none;
+	border-radius:5px;
+}
+
+.colors{
+	display: flex;
+	flex-direction: row;
+	width: 130px;
+	height: 130px;
+	margin: 13px 0px;
+	border: 2px solid black;
+}
+
+#tel_code {
+    width: 100px;
+    padding: 8px;
+    border: 1px solid rgb(150, 149, 149);
+    box-shadow: 2px 2px 2px rgb(180, 180, 180);
+}
+
+#phone_no{
+	width: 200px;
+	background-color: transparent;
+}
+
+#tel_code option{
+    background-color: rgb(105, 104, 104);
+}
+
+
+input[type='text'], input[type='tel'], input[type='email'], textarea{
+	width: 300px;
+    border: none;
+    padding: 8px;
+    background-color: transparent;
+    box-shadow: none;
+    border-bottom: 1px solid rgb(150, 180, 200);
+    border-radius: 0;
+    outline: 1px solid rgb(150, 180, 200);
+}
+
+.preview-picture{
+	display: block;
+    width: 250px;
+    height: 250px;
+    margin: 8px 0;
+    border-radius: 50%;
+    box-shadow: 2px 2px 2px rgb(170, 169, 169);
+    background-color:#ccc;
+}
+
+.preview-wall{
+    width: 115px;
+    height: 100px;
+    margin: 8px 0px;
+    border-radius: 5px;
+    border: 1px solid rgba(7, 37, 7, 0.85);
+    box-shadow: 2px 2px 2px rgb(133, 132, 132);
+    background-color:#ccc;
+}
+
+.account_destroy_container{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items:flex-end;
+	padding: 20px 10px 0 10px;
+}
+
+.account_destroy_container fieldset{
+	width: 100%;
+}
+
+.account_destroy_container span{
+	color: rgb(40, 20, 20);
+	font-size: 1.5rem;
+}
+
+#account_destroy_button{
+	border: none;
+	box-sizing:border-box;
+	border-radius: 5px;
+	background-color:rgb(120, 50, 50);
+	margin:15px 0 5px 0;
+	padding: 15px;
+	color: white;
+	float: right;
+	width: 100%;
+}
+
+#account_destroy_button:hover{
+	background-color:rgb(100, 50, 50);
+	cursor: pointer;
+}

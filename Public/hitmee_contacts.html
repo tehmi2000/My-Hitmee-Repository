@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=7">
+    <title>HITMEE | Chats</title>
+
+    <link rel="shortcut icon" href="./images/fav-icon.png" type="image/x-icon">
+    <link rel="stylesheet" href="images/icofont/icofont.min.css">
+    <link rel="stylesheet" type="text/css" href='css/hitmee.css'>
+    <link rel="stylesheet" type="text/css" href="css/hitmee_contacts.css">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/lib/greensock-js/src/minified/TweenMax.min.js"></script>
+    <script src='js/hitmee.js'></script>
+    <script src='js/hitmee_contacts.js'></script>
+</head>
+
+<body>
+    <style>
+        .pass-section{
+            opacity: 0.4;
+        }
+
+        .pass-section:hover{
+            opacity: 1;
+        }
+
+        .pass-section input[type="password"]{
+            outline: none;
+            border: none;
+            background-color: #f2f2f2;
+            /* border-bottom: 2px solid rgba(114, 180, 189, 0.911); 
+            border-radius: 5px;*/
+            padding: 5px;
+            -webkit-transition: width 0.3s ease;
+            -moz-transition: width 0.3s ease;
+            -ms-transition: width 0.3s ease;
+            -o-transition: width 0.3s ease;
+            transition: width 0.3s ease;
+        }
+
+        .pass-section .lock-toggle{
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+        }
+    </style>
+
+    <audio id="player" src="" autoplay>Audio not supported</audio>
+
+    <header class="header" id="contact_header" style="padding: 1rem;">
+        <span id="logo">
+            <img src="images/coast_paradise_tropical_sea_sky_sunshine_emerald_blue_beach_4800x2751.jpg" alt="Your DP">
+            <span>YOU</span>
+        </span>
+
+        <div class="navigators">
+            <button id="nav_status">Status</button>
+            <button id="nav_chats">Chats</button>
+            <button id="nav_games">Calls</button>
+        </div>
+
+        <div class="content-wrapper">
+            <button id="set-button"><img src="./images/menu-267-6012990.png" alt="" aria-label="more-options"></button>
+            
+            <div class="content">
+                <button onclick="navigatePage('settings')">
+                    <i class="icofont-settings-alt"></i>
+                    <span>My profile settings</span>
+                </button>
+
+                <button onclick="">
+                    <i class="icofont-users-alt-5"></i>
+                    <span>Create Group Chat</span>
+                </button>
+
+                <button onclick="">
+                    <img src='./images/remove-friend.png'>
+                    <span>Remove friend</span>
+                </button>
+
+                <button onclick="navigatePage('logout')">
+                    <i class="icofont-power"></i>
+                    <span>Logout</span>
+                </button>
+
+                <fieldset>
+                    <legend>Voice Assistant</legend>
+                    <div>
+                        <span>Toggle ON/OFF</span>
+                        <span>
+                            <label for="assistant-toggle">tere</label>
+                            <input type="checkbox" name="" class="toggle" id="assistant-toggle" style="position: absolute; z-index: -1;">
+                        </span>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </header>
+
+    <main class="main" id="main-container">
+        <div id="sect">
+            <button id="add-friend" class='floating-button add-friend' aria-label="Add-a-friend">
+                <i class="icofont-search-user"></i>
+            </button>
+
+            <section class="status_section">
+
+            </section>
+
+            <section class="contact_section">
+
+                <div class="contact_box" id="contact_box">
+
+                    <dialog id="dialog">
+                        <div id="dialog_header" class="header"></div>
+                        <img id="full-image" src="" alt="" />
+                        <div class="footer">
+                            <a id="dialog_share" href="#"><button>Share <i class="icofont-share"></i></button></a>
+                            <a id="dialog_info" href="#"><button>Info <i class="icofont-info"></i></button></a>
+                            <a id="dialog_download" href="" download><button>Download <i class="icofont-download"></i></button></a>
+                        </div>
+                    </dialog>
+
+                    <!-- <div class="on_contact" id="on_contact">
+                        <img src="images/Waterfalls_USA_Crag_Trees_Hocking_Hills_State_Park_Ohio_Nature_10929x5553.jpg" alt="[temi's dp]" class="user_dp" onclick="Javascript:showImage(event)"/>
+                        
+                        <div class="cols display-container">
+                            <div class="rows">
+                                <span class="chat-name">HITMEE APP</span>
+                                <span class="display-time"><i>Time</i></span>
+                            </div>
+                            <div class="rows">
+                                <span class="chat-message">Dummy message...</span>
+                                <span class="unread-indicator">2</span>
+                            </div>
+                        </div>
+
+                        <span class="pass-section">
+                            <button class="lock-toggle"><i class="icofont-lock"></i></button>
+                            <input type="password">
+                        </span>
+                    </div> -->
+                </div>
+            </section>
+
+            <section class="call_section">
+
+            </section>
+        </div>
+
+        <footer class="foot_note" id="foot_note">
+            <span>The end of the list</span>
+        </footer>
+    </main>
+
+    <aside class="friend-search-box">
+        <div class="head-label close" title="close">
+            <span class="icofont-close close"></span>
+        </div>
+        <span class="heading">ADD FRIEND</span>
+        <div id="search_container">
+            <input type="text" name="searcher" class="search" id='search' placeholder="Enter Friend ID" autofocus>
+            <input type="submit" onclick="search()" class="search_button" value="Search">
+        </div>
+        
+        <div>
+
+        </div>
+    </aside>
+</body>
+
+</html>
