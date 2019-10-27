@@ -36,14 +36,14 @@ const model = function(){
 	
 	// <<<<<<<<<<<<<<<<<<<<<< Local development >>>>>>>>>>>>>>>>>>>>>>>>>>
 	
-	const connection = mysql.createConnection({
-		host : 'localhost',
-		user : 'root',
-		password : '',
-		database : 'hitmee_db'
-	});
+	// const connection = mysql.createConnection({
+	// 	host : 'localhost',
+	// 	user : 'root',
+	// 	password : '',
+	// 	database : 'hitmee_db'
+	// });
 	
-	const MONGO_URL = 'mongodb://localhost:27017';
+	// const MONGO_URL = 'mongodb://localhost:27017';
 	
 	
 	// <<<<<<<<<<<<<<<<<<<<<< Heroku deployment >>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -59,15 +59,15 @@ const model = function(){
 	*/
 	
 	// JAWDB CONNECTION
-	/* const connection = mysql.createConnection({
+	const connection = mysql.createConnection({
 		host: 'qbct6vwi8q648mrn.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
 		user : 'fnj34shti3p422g7',
 		password: 'keuxufzygeai2zok',
 		database: 's0e1xd46txbhy6qi'
-	}); */
+	});
 	
 	// ATLAS CONNECTION STRING
-	// const MONGO_URL = "mongodb+srv://hItmee_01q7vl99:n6ormXKlEXUarGRB@hitmee-cluster0-smdsp.gcp.mongodb.net/test?retryWrites=true&w=majority";
+	const MONGO_URL = "mongodb+srv://hItmee_01q7vl99:n6ormXKlEXUarGRB@hitmee-cluster0-smdsp.gcp.mongodb.net/test?retryWrites=true&w=majority";
 	
 	// MLAB CONNECTION STRING 
 	// const MONGO_URL = "mongodb://heroku_01q7vl99:b7215l6q7fol8jk9gk3ss430mv@ds341837.mlab.com:41837/heroku_01q7vl99";
