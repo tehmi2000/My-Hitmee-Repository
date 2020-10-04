@@ -33,11 +33,11 @@ const model = function(){
     
     // JAWDB MYSQL CONNECTION
     const connection = mysql.createConnection({
-    	host: "l9dwvv6j64hlhpul.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+    	host: "qbct6vwi8q648mrn.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
     	port: 3306,
     	user: process.env.MYSQL_USER,
     	password: process.env.MYSQL_PASS,
-    	database: "mvqa2ejzg5zltrc0"
+    	database: "s0e1xd46txbhy6qi"
     });
     
     // ATLAS MONGODB CONNECTION
