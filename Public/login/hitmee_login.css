@@ -26,7 +26,12 @@ main .element img{
 }
 
 main .element h3, main .element > span{
+    line-height: 1.5;
     color: white;
+}
+
+main .element > span{
+    line-height: 1.5;
 }
 
 main .element .element-btn{
@@ -42,6 +47,17 @@ main .element .element-btn{
     text-decoration: none;
     text-transform: uppercase;
     text-align: center;
+    transition: all 0.2s linear;
+}
+
+main .element .element-btn:hover{
+    border: 2px solid orange;
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+main .element .b.element-btn:not(:hover){
+    animation: bounce 2.5s ease-out 10s infinite backwards normal;
 }
 
 header{
@@ -59,7 +75,8 @@ header h2{
 }
 
 header nav > *{
-    margin: 1rem;
+    display: inline-block;
+    margin: 0.4rem 1.3rem;
     text-decoration: none;
     color: white;
     text-transform: uppercase;
@@ -280,7 +297,9 @@ video.phone-screen{
     background-color: transparent;
 }
 
-#login-form-screen .form-line label{ 
+#login-form-screen .form-line label{
+    text-shadow: 1px 1px 0 rgb(54, 54, 54);
+    font-weight: 400;
     color: white;
 }
 
@@ -481,37 +500,97 @@ input[type="submit"]:not([disabled]):hover{
     box-shadow: 0 1px 2px rgba(71, 71, 71, 0.322);
 }
 
-@-webkit-keyframes rolling{
+@-webkit-keyframes bounce{
     0%{
         transform-origin: center;
-        transform: rotateZ(0deg);
+        transform: rotateZ(0deg) translateY(0);
     }
 
-    50%{
+    20%{
         transform-origin: center;
-        transform: rotateZ(180deg);
+        transform: rotateZ(0deg) translateY(-10px);
+    }
+
+    25%{
+        transform-origin: center;
+        transform: rotateZ(8deg) translateY(-10px);
+    }
+
+    30%{
+        transform-origin: center;
+        transform: rotateZ(-8deg) translateY(-10px);
+    }
+
+    35%{
+        transform-origin: center;
+        transform: rotateZ(8deg) translateY(-10px);
+    }
+
+    40%{
+        transform-origin: center;
+        transform: rotateZ(-8deg) translateY(-10px);
+    }
+
+    55%{
+        transform-origin: center;
+        transform: rotateZ(0deg) translateY(5px);
+    }
+
+    65%{
+        transform-origin: center;
+        transform: rotateZ(0deg) translateY(0);
     }
 
     100%{
         transform-origin: center;
-        transform: rotateZ(360deg);
+        transform: rotateZ(0deg) translateY(0);
     }
 }
 
-@keyframes rolling{
+@keyframes bounce{
     0%{
         transform-origin: center;
-        transform: rotateZ(0deg);
+        transform: rotateZ(0deg) translateY(0);
     }
 
-    50%{
+    20%{
         transform-origin: center;
-        transform: rotateZ(180deg);
+        transform: rotateZ(0deg) translateY(-10px);
+    }
+
+    23%{
+        transform-origin: center;
+        transform: rotateZ(8deg) translateY(-10px);
+    }
+
+    26%{
+        transform-origin: center;
+        transform: rotateZ(-8deg) translateY(-10px);
+    }
+
+    29%{
+        transform-origin: center;
+        transform: rotateZ(8deg) translateY(-10px);
+    }
+
+    32%{
+        transform-origin: center;
+        transform: rotateZ(-8deg) translateY(-10px);
+    }
+
+    40%{
+        transform-origin: center;
+        transform: rotateZ(0deg) translateY(10px);
+    }
+
+    55%{
+        transform-origin: center;
+        transform: rotateZ(0deg) translateY(0);
     }
 
     100%{
         transform-origin: center;
-        transform: rotateZ(360deg);
+        transform: rotateZ(0deg) translateY(0);
     }
 }
 
@@ -524,7 +603,9 @@ input[type="submit"]:not([disabled]):hover{
     }
 
     header nav{
-        margin: 1rem auto 0.5rem auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 2rem auto 0.5rem auto;
         padding: 1rem 2.5rem;
         background-color: #0caa4b;
         border-radius: 5vh;
@@ -546,6 +627,11 @@ input[type="submit"]:not([disabled]):hover{
     main .element div.sections{
         flex-direction: column !important;
         align-items: center;
+    }
+
+    main .element .element-btn{
+        width: auto;
+        max-width: 26rem;
     }
 
     main .phone-section{

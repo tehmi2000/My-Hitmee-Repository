@@ -4,6 +4,7 @@ let shouldPrompt = false;
 let errorD;
 const querystring = getQuery();
 let inputElement = null;
+let timeouts = null;
 
 const welcomeDelay = setTimeout(function () {
     // welcome_user();
@@ -176,6 +177,8 @@ let animateChats = function (elements, type) {
 };
 
 let animateSlides = function (noOfSlides) {
+	if (timeouts !== null) clearTimeout(timeouts);
+
 	let element = document.querySelector(`#slider .slide:nth-child(${noOfSlides})`);
 	gsap.set(element, {opacity: 1});
 	gsap.fromTo(element, 0.8, {opacity: 0.5, y: "80vh"}, {opacity: 1, y: "10vh", ease: "elastic.out(2, 0.3)", onComplete: function () {
@@ -184,7 +187,7 @@ let animateSlides = function (noOfSlides) {
 		}});
 	}});
 
-	setTimeout(() => {
+	timeouts = setTimeout(() => {
 		let nextElement = document.querySelector(`#slider .slide:nth-child(${noOfSlides + 1})`);
 		if(nextElement === null || nextElement === undefined){
 			animateSlides(1);

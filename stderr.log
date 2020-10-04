@@ -452,3 +452,13 @@ Fri, 02 Oct 2020 20:12:02 GMT: {"name":"MongoError"}
 Sat, 03 Oct 2020 13:37:29 GMT: {"code":"ER_ACCESS_DENIED_ERROR","errno":1045,"sqlMessage":"Access denied for user 'root'@'localhost' (using password: NO)","sqlState":"28000","fatal":true}
 Sun, 04 Oct 2020 04:30:12 GMT: {"code":"ER_ACCESS_DENIED_ERROR","errno":1045,"sqlMessage":"Access denied for user ''@'129.205.112.175' (using password: NO)","sqlState":"28000","fatal":true}
 Sun, 04 Oct 2020 04:43:09 GMT: {"errno":"ENOTFOUND","code":"ENOTFOUND","syscall":"getaddrinfo","hostname":"qbct6vwi8q648mrn.cbetxkdyhwsb.us-east-1.rds.amazonaws.com","host":"qbct6vwi8q648mrn.cbetxkdyhwsb.us-east-1.rds.amazonaws.com","port":3306,"fatal":true}
+Sun, 04 Oct 2020 05:28:01 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 05:39:22 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 05:45:12 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 10:54:18 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 10:55:31 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 11:18:42 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 11:21:36 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 11:22:17 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 11:22:24 GMT: {"name":"MongoParseError"}
+Sun, 04 Oct 2020 11:22:49 GMT: {"name":"MongoParseError"}
