@@ -32,7 +32,7 @@ const model = function(){
     // const MONGO_URL = "mongodb://localhost:27017";
     
     // JAWDB MYSQL CONNECTION
-    const conn = mysql.createConnection({
+    const connection = mysql.createConnection({
     	host: "l9dwvv6j64hlhpul.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
     	port: 3306,
     	user: process.env.MYSQL_USER,
