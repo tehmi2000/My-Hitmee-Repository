@@ -8,7 +8,13 @@
     <title>Redirecting...</title>
     <link rel="shortcut icon" href="./images/fav-icon.png" type="image/x-icon">
     <link rel="stylesheet" href="images/icofont/icofont.css">
-    <link rel="stylesheet" type="text/css" href="css/hitmee.css" />
+    <link rel="stylesheet" type="text/css" href="hitmee.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="hitmee.js"></script>
+    <script src="js/lib/greensock-js/src/minified/TweenMax.min.js"></script>
+</head>
+
+<body>
     <style>
         body {
             margin: 0;
@@ -101,42 +107,34 @@
         }
     </style>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src='js/hitmee.js'></script>
-    <script src="js/lib/greensock-js/src/minified/TweenMax.min.js"></script>
-
-</head>
-
-<body>
     <div class="body-div">
         <div class="wrapper">
             <h1> Hitmee</h1>
-            
             <div id='box'>
-                <div id='prog'><i id="logo" class="icofont-brand-apple"></i></div>
+                <div id='prog'>
+                    <i id="logo" class="icofont-brand-apple"></i>
+                </div>
             </div>
-          
         </div>
         
         <div id='counter'></div>
     </div>
     
     <script>
-    	const querystring = get_query();
-    	const timeout = 3;
+    	const querystring = getQuery();
+    	const timeOut = 3;
     	var dots = '';
-    	var no_of_dot = 0;
+    	var numberOfDots = 0;
     
     
-    	if (querystring && querystring["redirect"] == "home"){
+    	if (querystring && querystring["redirect"] === "home"){
     		try{
-    			TweenMax.to("#prog", timeout, {width: "98%", height: "98%", onProgress: function(){
-    				no_of_dot++;
-    				if (no_of_dot > 3) {
-    					no_of_dot = 0;
+    			TweenMax.to("#prog", timeOut, {width: "98%", height: "98%", onProgress: function(){
+    				numberOfDots++;
+    				if (numberOfDots > 3) {
+    					numberOfDots = 0;
     					dots = '';
     				}
-    				//get('counter').innerHTML = 'Hey buddy, I am taking us home...Logging in' + dots;
     				dots += '.';
     				
     			}, onComplete: function(){

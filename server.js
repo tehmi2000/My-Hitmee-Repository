@@ -1,87 +1,77 @@
 'use strict';
-const controller = require('./controller'),
-		app_db_config = require("./config"),
-        mf = require('./modules/myFunctions'),
-        emailer = require("./modules/emailHandler"),
-        certConfig = require('./modules/certificate').config,
-        fs = require('fs'),
-        path = require("path"),
-        mongo = require('mongodb').MongoClient,
-        express = require('express'),
-        app = express(),
-        connection = app_db_config.connection,
-        fileUpload = require('express-fileupload'),
-        bodyParser = require('body-parser'),
-        session = require('express-session'),
-        cookieParser = require('cookie-parser'),
-        server = require('http').createServer(app),
-        // server = require('https').createServer(certConfig, app),
-        io = require('socket.io')(server);
-        
+//const server = require('https').createServer(certConfig, app);
+// const certConfig = require('./modules/certificate').config;
+const controller = require('./controller');
+const appDBConfig = require("./config");
+// const emailer = require("./modules/emailHandler");
+const mf = require('./modules/myFunctions');
+
+const fs = require('fs');
+const path = require("path");
+const express = require('express');
+const app = express();
+const { userTableExist, mongoConn, log, MongoErrorHandler, sqlConn } = appDBConfig;
+const fileUpload = require('express-fileupload');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
 const PORT = (process.env.PORT == "" || process.env.PORT == null)? 3000 : process.env.PORT;
-const users_online = [];
-const url = app_db_config.MONGO_URL;
-const sess_secret = {
-    secret: 'shh...its a secret',
-    resave: true,
-    saveUninitialized: true
-};
+const usersOnline = [];
+const url = appDBConfig.MONGO_URL;
 const files = {};
-const file_structure = {
+const fileStructure = {
     name: null,
     type: null,
     size: null,
     data: [],
     slice_count: 0
 };
-
+const sessSecret = {
+    secret: 'shh...its a secret',
+    resave: true,
+    saveUninitialized: true
+};
 
 console.log("Connecting to mysql server...");
-connection.connect(function (err) {
-    if(err) throw err;
-    console.log('Connected to mysql server!');
 
-    console.log("Checking for mysql initialization requirements...");
-    connection.query(app_db_config.query_test, function(err){
-    	if(err){
-    		try{
-    			connection.query(app_db_config.query_create, function(err){
-    				if(err) throw err;
-    				console.log("Mysql database is initialized and ready");
-    			});
-    		}catch(error){
-    			throw error;
-    		}
-    	}else{
-    		console.log("Connection to database is successful!");
-    	}
-    });
+sqlConn.connect(function (err) {
+    if (err) {
+        log(err);
+    } else {
+        console.log('Connected to mysql server!');
+        console.log("Checking for mysql initialization requirements...");
+
+        userTableExist();
+    }
 });
 
 console.info('Web server started');
 
-app.use(express.static(path.join(__dirname, "Public")));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-app.use(session(sess_secret));
+app.use(session(sessSecret));
 app.use(fileUpload());
 
 console.log("Serving files from -- Project Folder: ",__dirname);
+
 app.get('/', function(req, res){
-    res.sendFile(__dirname + "/Public/hitmee_login.html");
+    res.redirect("/login");
 });
 
 app.post('/admin', (req, res)=>{
-
-    function formatName(str){
+    const formatName = function (str){
         let formattedString = (str.charAt(0)).toUpperCase()+(str.substring(1)).toLowerCase();
         console.log(formattedString);
         return formattedString;
-    }
+    };
 
-    function accessFolder() {
-        var uploadPath = path.join(__dirname, 'Public/Uploads/');
+    const accessFolder = function () {
+        var uploadPath = path.join(__dirname, 'public/uploads/');
 
         try {
 
@@ -123,195 +113,187 @@ app.post('/admin', (req, res)=>{
         } catch (err) {
             console.log(err);
         }
-    }
+    };
 
-    function createNewAccount() {
+    const createNewAccount = function () {
         const sid = Math.ceil(Math.random()*10e8);
+        let query = "INSERT INTO users (uID, username, password, bio, telcode, phone, email, profile_picture) VALUES ('"+sid.toString()+"', '"+userUsername+"', '"+mf.encrypt(userPassword)+"', 'I am  new to Hitmee', '+234', '"+user_phone.toString()+"', '"+user_email.toString()+"', 'images/contacts-filled_e.png')";
 
-        // ################################################ MYSQL ###############################################################
-
-        let query = "INSERT INTO users (uID, username, password, bio, telcode, phone, email, profile_picture) VALUES ('"+sid.toString()+"', '"+user_username+"', '"+mf.encrypt(user_password)+"', 'I am  new to Hitmee', '+234', '"+user_phone.toString()+"', '"+user_email.toString()+"', 'images/contacts-filled_e.png')";
-
-        connection.query(query, function (err) {
-            if(err) throw err;
+        sqlConn.query(query, function (err) {
+            if(err) log(err);
 
             console.log('New user details uploaded successfully!');
-            emailer.sendVerificationMail(user_email).then(function(res){
-            	console.log(res);
-            }).catch(function(err){
-            	console.log(err)
-            });
+            // emailer.sendVerificationMail(user_email).then(function(response){
+            //     console.log("Sending Verification Email..");
+            //     console.log(response);
+            // }).catch(function(err){
+            // 	console.log(err)
+            // });
         });
 
-	    // ############################################## MONGODB ###############################################################
-		mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-			if (err) {
-				MongoErrorHandler(err);
-			}else{
-			
-				let doc = [{chatwall: 'images/Hitmee_default_wallpaper.png'}];
-				let collection = client.db(`${user_username}`).collection('settings');
-				collection.insertMany(doc, (err)=>{
-					if (err) throw err;
-				});
-				
-				client.close();
-			}
-		});
 
-        if (mf.searchArrayFor(users_online, user_username).found==false){
+        mongoConn.then(client => {
 
-            users_online.push({
-                uID : sid,
-                sock: '',
-                username: user_username,
-                profile_picture : 'images/contacts-filled_e.png'
+            let doc = [{chatwall: "assets/images/Hitmee_default_wallpaper.png"}];
+            let collection = client.db(`${userUsername}`).collection('settings');
+            collection.insertMany(doc, (err)=>{
+                if (err) log(err);
             });
             
-            mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-            	if (err) {
-            		MongoErrorHandler(err);
-            	}else{
-            	
-            		let doc =   {
-                    	username : user_username,
-            	    	uID : sid,
-            			sock: '',
-            			status: '',
-            			time_stamp: '',
-            			username: user_username,
-                    	profile_picture : 'images/contacts-filled_e.png'
-                	};
-            
-            		let collection = client.db("users_online").collection("all");
-            
-            		collection.insertOne(doc, function(err){});
-            		client.close();
-            	}
+            // client.close();
+
+        }).catch(err => {
+            console.log("Inserting wallpaper went wrong"); 
+			MongoErrorHandler(err);
+		});
+
+        if (mf.searchArrayFor(usersOnline, userUsername).found==false){
+
+            usersOnline.push({
+                uID : sid,
+                sock: '',
+                username: userUsername,
+                profile_picture : "../assets/images/contacts-filled_e.png"
+            });
+
+            mongoConn.then(client => {
+                let doc =   {
+                    username : userUsername,
+                    uID : sid,
+                    sock: '',
+                    status: '',
+                    time_stamp: '',
+                    username: userUsername,
+                    profile_picture : '../assets/images/contacts-filled_e.png'
+                };
+        
+                let collection = client.db("usersOnline").collection("all");
+        
+                collection.insertOne(doc, function(err){});
+                // client.close();
+    
+            }).catch(err => {
+                MongoErrorHandler(err);
             });
 
             io.sockets.emit('newconnect', {
-                username: user_username,
+                username: userUsername,
                 uID : sid,
-                profile_picture : 'images/contacts-filled_e.png'
+                profile_picture : '../assets/images/contacts-filled_e.png'
             });
         }
 
-
         let VALIDATION_COMPLETE = true;
-        req.session.username = user_username;
+        req.session.username = userUsername;
         accessFolder();
         res.cookie('hitmee-id', sid);
-        res.cookie('hitmee-username', user_username);
+        res.cookie('hitmee-username', userUsername);
         res.cookie('hitmee-val', VALIDATION_COMPLETE,{maxAge:300000});
-        res.redirect('/success_fail.html?sess='+mf.genHex()+'&redirect=home');
-    }
+        res.json({
+            status: "ok",
+            statusCode: 200,
+            redirectUrl: `/success_fail.html?sess=${mf.genHex()}&redirect=home`
+        });
+    };
 
-    const user_password = req.body.password;
-    const user_username = formatName(req.body.username);
-    const user_phone = req.body.login_phone || '08000000000';
-    const user_email = req.body.login_email || 'example@coolmail.com';
+    const login = function (usersDBdata){
+        let VALIDATION_COMPLETE = false;
+        if (userPassword === mf.decrypt(usersDBdata.password)){
 
-    // ################################################## MYSQL ###########################################################
+            if (mf.searchArrayFor(usersOnline, userUsername).found == false && !req.session.username){
+                usersOnline.push({
+                    uID : usersDBdata.uID,
+                    sock: '',
+                    username: userUsername,
+                    profile_picture : usersDBdata.profile_picture
+                });
 
-    let query = "SELECT * FROM users WHERE username = '"+user_username+"'";
+                io.sockets.emit('newconnect', {
+                    username: userUsername, 
+                    uID : usersDBdata.uID, 
+                    profile_picture : usersDBdata.profile_picture
+                });
+            }
 
-    connection.query(query, function (err, [results]) {
-        if(err) throw err;
+            VALIDATION_COMPLETE = true;
+            req.session.username = userUsername;
+            accessFolder();
+            res.cookie('hitmee-id', usersDBdata.uID);
+            res.cookie('hitmee-username', userUsername);
+            res.cookie('hitmee-val', VALIDATION_COMPLETE,{maxAge:300000});
+            res.json({
+                status: "ok",
+                statusCode: 200,
+                redirectUrl: `/success_fail.html?sess=${mf.genHex()}&redirect=home`
+            });
+
+            console.log("Sent");
+
+        // Mismatched password...
+        }else {
+            VALIDATION_COMPLETE = false;
+            res.cookie('hitmee-val', VALIDATION_COMPLETE, {maxAge:300000});
+            // res.redirect('/?error=novalidid');
+            res.json({
+                status: "fail",
+                statusCode: 401
+            });
+            console.log('Password Mismatch for '+userUsername+'\n\n');
+        }
+    };
+
+    const userPassword = req.body['password'];
+    const userUsername = formatName(req.body["username"]);
+    const user_phone = req.body['phone-number'] || '08000000000';
+    const user_email = req.body.email || 'example@coolmail.com';
+    let query = `SELECT * FROM users WHERE username = '${userUsername}'`;
+
+    console.log(req.body);
+
+    sqlConn.query(query, function (err, [results]) {
+        if(err) log(err);
 
         if(results){
-            let VALIDATION_COMPLETE = false;
             console.log('calling login...');
-			console.log(results);
-			
-            if (user_password==mf.decrypt(results.password)){
-
-                if (mf.searchArrayFor(users_online, user_username).found==false && !req.session.username){
-                    users_online.push({
-                        uID : results.uID,
-                        sock: '',
-                        username: user_username,
-                        profile_picture : results.profile_picture
-                    });
-
-                    io.sockets.emit('newconnect', {
-                    		username: user_username, 
-                    		uID : results.uID, 
-                    		profile_picture : results.profile_picture
-                    });
-                }
-
-                VALIDATION_COMPLETE = true;
-                req.session.username = user_username;
-                accessFolder();
-                res.cookie('hitmee-id', results.uID);
-                res.cookie('hitmee-username', user_username);
-                res.cookie('hitmee-val', VALIDATION_COMPLETE,{maxAge:300000});
-                res.redirect('/success_fail.html?sess='+mf.genHex()+'&redirect=home');
-
-            // Mismatched password...
-            }else {
-
-                VALIDATION_COMPLETE = false;
-                res.cookie('hitmee-val', VALIDATION_COMPLETE, {maxAge:300000});
-                res.redirect('/?error=novalidid');
-                console.log('Password Mismatch for '+user_username+'\n\n');
-
-            }
+            login(results);
         }else{
-            console.log('calling createNewAccount()');
+            console.log('calling createNewAccount...');
             createNewAccount();
-
         }
     });
-});
-
-app.get('/home', (req, res) => {
-
-    if (req.query.code){
-        res.redirect("/");
-    }
-
-    if(req.session.username){
-        res.redirect("/hitmee_contacts.html?accountOwner="+req.session.username+"&uniqueSession_Id="+((1+Math.random())*(10e5)).toString());
-    }else{
-        res.redirect("/");
-        res.write('<h1>Please login first. You would be redirected soon</h1>');
-        res.end('<i>If you are not redirected,</i><a href=\"/\">&nbspLogin here</a>');
-    }
 });
 
 app.get('/logout', (req, res)=>{
     let divId;
 
-    // Remove user from users_online array
-    for (let i = 0 ; i < users_online.length ; i++) {
-        if (users_online[i].username == req.session.username) {
-            divId=users_online[i].uID;
-            users_online.splice(i, 1);
+    // Remove user from usersOnline array
+    for (let i = 0 ; i < usersOnline.length ; i++) {
+        if (usersOnline[i].username == req.session.username) {
+            divId=usersOnline[i].uID;
+            usersOnline.splice(i, 1);
             break;
         }
     }
     
-    var date=new Date();
-    var time_string=mf.formatTime(date.getHours(), date.getMinutes());
+    var date = new Date();
+    var timeString = mf.formatTime(date.getHours(), date.getMinutes());
     var username = `${req.session.username}`;
 
     // Update users unline status to offline
-    mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-    	if (err) {
-    		MongoErrorHandler(err);
-    	}else{
-    
-    		let collection = client.db("users_online").collection("all");
-    		collection.updateMany({"username": username},{$set:{"status": "offline", "time_stamp": time_string}}, function(err){
-    			if (err) console.log(err);
-    		});
-    		client.close();
-    	}
+
+    mongoConn.then(client => {
+
+        let collection = client.db("usersOnline").collection("all");
+        collection.updateMany({"username": username},{$set:{"status": "offline", "time_stamp": timeString}}, function(err){
+            if (err) console.log(err);
+        });
+        // client.close();
+            
+    }).catch(err => {
+        MongoErrorHandler(err);
     });
 
-    io.emit("offline", "offline", time_string);
+    io.emit("offline", "offline", timeString);
 
 
     // Clear users session data
@@ -320,42 +302,42 @@ app.get('/logout', (req, res)=>{
             console.log(err);
         }else{
             io.emit('logged out', divId);
-            // io.emit('receiveOnlineUsers', users_online);
+            // io.emit('receiveOnlineUsers', usersOnline);
             // Clear all cookies used on logout
             res.clearCookie("hitmee-username");
             res.clearCookie("hitmee-id");
             res.clearCookie("hitmee-val");
-            res.redirect("/");
+            res.redirect("/login");
         }
     });
 
 });
 
 app.post('/update_settings',(req, res)=>{
-    if(req.session.username!=undefined || req.session.username!=null){
+    if(req.session.username != undefined || req.session.username!=null){
 
         if(req.body.bio){
             let query = "UPDATE users SET bio = \""+req.body.bio+"\" WHERE username = '"+req.session.username+"'";
-            connection.query(query, function(err) {
+            sqlConn.query(query, function(err) {
                 if (err) throw err;
             });
         }
 
         if(req.body.email){
             let query = `UPDATE users SET email = '${req.body.email}' WHERE username = '${req.session.username}'`;
-            connection.query(query, function(err) {
+            sqlConn.query(query, function(err) {
                 if (err) throw err;
             });
         }
 
         if(req.body.phone_no && req.body.tel_code){
             let query1 = `UPDATE users SET phone = '${req.body.phone_no}' WHERE username = '${req.session.username}'`;
-            connection.query(query1, function(err) {
+            sqlConn.query(query1, function(err) {
                 if (err) throw err;
             });
 
             let query2 = `UPDATE users SET telcode = '${req.body.tel_code}' WHERE username = '${req.session.username}'`;
-            connection.query(query2, function(err) {
+            sqlConn.query(query2, function(err) {
                 if (err) throw err;
             });
         }
@@ -365,7 +347,7 @@ app.post('/update_settings',(req, res)=>{
                 res.redirect('/home');
             }else{
                 for (const key in req.files) {
-                    var uploadPath = __dirname + '/Public/Uploads/';
+                    var uploadPath = __dirname + '/public/Uploads/';
 
                     switch(key){
 
@@ -383,7 +365,7 @@ app.post('/update_settings',(req, res)=>{
                                 	});
                                     update_pp(req.session.username, sampNamep + req.session.username + '_dp.' + extensionp);
                                     let query = "UPDATE users SET profile_picture = './Uploads/"+req.session.username+"/dp/"+ req.session.username + "_dp." + extensionp + "' WHERE username = '"+req.session.username+"'";
-                                    connection.query(query, function(err) {
+                                    sqlConn.query(query, function(err) {
                                         if (err) throw err;
                                     });
                                     console.log('uploaded')
@@ -406,7 +388,7 @@ app.post('/update_settings',(req, res)=>{
                                 		if (err) throw err;
                                 	});
                                 	
-                                	mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+                                	mongoConnConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
                                 		if (err) {
                                 			MongoErrorHandler(err);
                                 		}else{
@@ -415,7 +397,7 @@ app.post('/update_settings',(req, res)=>{
                                 			let collection = client.db(`${req.session.username}`).collection('settings');
                                 	
                                 			collection.updateOne({}, {$set: {"chatwall": 'Uploads/' + req.session.username + '/wp/' + req.session.username + '_wp.' + extensionw}});
-                                			client.close();
+                                			// client.close();
                                 		}
                                 	});
                                 }
@@ -441,35 +423,33 @@ app.post('/update_settings',(req, res)=>{
 
 });
 
-app.get('/drop',controller.drop);
-
 app.get('/destroy_account', (req, res)=>{
     console.info('Destroying account...');
     if(req.session.username){
         des_username = req.session.username;
         let query = "DELETE FROM users WHERE username='"+des_username+"'";
-        connection.query(query, (err)=>{
+        sqlConn.query(query, (err)=>{
             if(err) throw err;
             console.log('Destroyed sql database...');
         });
 
-        mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+        mongoConnConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
             if (err) MongoErrorHandler(err);
 
             let db = client.db(`${des_username}`);
             db.dropDatabase((err)=>{
                 if(err) console.info(err);
             });
-            console.log('Destroyed mongodb database.');
-            client.close();
+            console.log('Destroyed mongoConndb database.');
+            // client.close();
         });
         
         var divId;
 
-        for (let i = 0 ; i < users_online.length ; i++) {
-        	if (users_online[i].username==req.session.username) {
-        		divId=users_online[i].uID;
-        		users_online.splice(i, 1);
+        for (let i = 0 ; i < usersOnline.length ; i++) {
+        	if (usersOnline[i].username==req.session.username) {
+        		divId=usersOnline[i].uID;
+        		usersOnline.splice(i, 1);
         		break;
         	}
         }
@@ -479,7 +459,7 @@ app.get('/destroy_account', (req, res)=>{
                 console.error(err);
             }else{
                 io.emit('logged out', divId);
-                io.emit('receiveOnlineUsers', users_online);
+                io.emit('receiveOnlineUsers', usersOnline);
                 res.redirect("/?destroy_account=acknowledged&redirectedToLogin=true&oldAccount="+des_username);
             }
         });
@@ -491,7 +471,7 @@ app.get('/destroy_account', (req, res)=>{
 app.get("/api/:username/getFriends", function(req, res) {
     let username = req.params.username;
     console.time("all-user-request-timer");
-    // mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+    // mongoConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
     // 	if (err) {
     //		MongoErrorHandler(err);
     //	}else{
@@ -508,7 +488,7 @@ app.get("/api/:username/getFriends", function(req, res) {
     //	}
     // });
     if(req.session.username === username){
-        res.json(users_online);
+        res.json(usersOnline);
     }else{
         res.json([]);
     }
@@ -516,34 +496,25 @@ app.get("/api/:username/getFriends", function(req, res) {
     console.log();
 });
 
-const MongoErrorHandler = function(error){
-	console.log("Handling...");
-	throw error;
-};
-
-const MysqlErrorHandler = function(error){
-	throw error;
-};
-
 const update_pp = function(username, imageName){
-    // update profile_picture in users_online
-    var searchResult1 = mf.searchArrayFor(users_online, username);
+    // update profile_picture in usersOnline
+    var searchResult1 = mf.searchArrayFor(usersOnline, username);
     if (searchResult1.found==true){
-        users_online[searchResult1.index].profile_picture='./Uploads/'+username+'/dp/'+imageName;
+        usersOnline[searchResult1.index].profile_picture='./Uploads/'+username+'/dp/'+imageName;
     }
     
-    mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+    mongoConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
     	if (err) {
     		MongoErrorHandler(err);
     	}else{
     
-    		let collection = client.db("users_online").collection("all");
+    		let collection = client.db("usersOnline").collection("all");
     
     		collection.updateOne({"username": username},{$set:{"profile_picture": './Uploads/'+username+'/dp/'+imageName}}, function(err){
     			if (err) console.log(err);
     		});
     		
-    		client.close();
+    		// client.close();
     	}
     });
 }
@@ -562,19 +533,19 @@ const readFile = function(path, req, res) {
 io.on('connection', function(socket) {
 
     socket.broadcast.emit("receive presence", "online", 0);
-	socket.on('check existing',function(username){
+	socket.on('check existing', function(username){
         /** Executed when the user is logging in... */
         console.time("check-existing-user-timer");
 		try{
-			let query = "SELECT username FROM users WHERE username = '"+username+"'";
-			connection.query(query, function (err, result) {
+			let query = `SELECT username FROM users WHERE username = '${username}'`;
+			sqlConn.query(query, function (err, result) {
 		
 				if (err) throw err;
 				
-				if(result.length>0){
-					socket.emit('existing', true);
+				if(result.length > 0){
+					socket.emit('existing', true, username);
 				}else{
-					socket.emit('existing', false);
+					socket.emit('existing', false, username);
 				}
 			});
 		}catch(err){
@@ -588,15 +559,16 @@ io.on('connection', function(socket) {
         console.time("update-user-socket-timer");
 
         console.log("updating socket for "+data+"...\n\n");
-        mongo.connect(url, {useNewUrlParser: true}).then((client)=>{
-        	let collection = client.db("users_online").collection("all");
+        mongoConn.then(client => {
+        	let collection = client.db("usersOnline").collection("all");
         
         	collection.updateMany({"username": data},{$set:{"sock": socket.id, "status": "online"}}, function(err){
         		if (err) console.log(err);
             });
             
-        	client.close();
-        }).catch(err=>{
+        	// client.close();
+        }).catch(err => {
+            console.log("Error at line 587");
             if (err) MongoErrorHandler(err);
         });
 
@@ -607,23 +579,22 @@ io.on('connection', function(socket) {
     socket.on("get presence", function(friendUsername){
 
         console.time("presence-request-timer");
-    	mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-    		if (err){ 
-    			MongoErrorHandler(err);
-    		}else{
-    	
-    			let collection = client.db("users_online").collection("all");
-    			collection.findOne({"username": friendUsername}, {_id: 0}, function(err, result){
-                	if (err) console.log(err);
+        
+    	mongoConn.then(client => {
+            let collection = client.db("usersOnline").collection("all");
+            collection.findOne({"username": friendUsername}, {_id: 0}, function(err, result){
+                if (err) console.log(err);
 
-                	if (result){
-                    	console.log("presence sent!");
-                    	socket.emit("receive presence", result.status, result.time_stamp);
-                	}
-    			});
-            	client.close();
-            }
+                if (result){
+                    console.log("presence sent!");
+                    socket.emit("receive presence", result.status, result.time_stamp);
+                }
+            });
+            // client.close();
+        }).catch(err => {
+            MongoErrorHandler(err);
         });
+
         console.timeEnd("presence-request-timer");
         console.log();
     });
@@ -645,39 +616,36 @@ io.on('connection', function(socket) {
 
 //      THE FOLLOWING FOR-LOOP WAS USED TO GET THE USERNAME OF THE CONNECTEE FROM THE USERS_ONLINE ARRAY
 		try{
-        	let query = "SELECT username FROM users WHERE uID = '"+idata+"'";
-        	connection.query(query, (err, results)=>{
-
+            let query = `SELECT username FROM users WHERE uID = '${idata}'`;
+            
+        	sqlConn.query(query, (err, results)=>{
             	if (err) throw err;
-
             	// console.log(results);
             	let chattingWith = results[0].username;
-
             	socket.emit('init_chatroom', mf.genHex(), chattingWith);
-
-        	});
+            });
+            
 		}catch(err){
 			console.error(err);
         }
         
         console.timeEnd("connect-to-user-timer");
-        console.log();
     });
 
     socket.on('typing', function(switches, sender, receiver) {
 		try{
         	let query = "SELECT uID FROM users WHERE username = '"+sender+"'";
-        	connection.query(query, function (err, results) {
+        	sqlConn.query(query, function (err, results) {
 
             	if (err) throw err;
             	
             	try{
-            		mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+            		mongoConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
             			if (err) {
             				MongoErrorHandler(err);
             			}else{
             	
-            				let collection = client.db("users_online").collection("all");
+            				let collection = client.db("usersOnline").collection("all");
             	
             				collection.findOne({"username": receiver},{_id: 0, uID: 1}, function(err, sock_gotten){
             					if (err) console.warn(err);
@@ -687,7 +655,7 @@ io.on('connection', function(socket) {
             						console.warn(e.message);
             					}
             				});
-            				client.close();
+            				// client.close();
             			}
             		});
             	
@@ -706,32 +674,30 @@ io.on('connection', function(socket) {
         console.time("user-message-request-timer");
 		try{
         	let query = "SELECT * FROM users WHERE username = '"+receipient+"'";
-        	connection.query(query, function (err, results) {
-            	if (err) throw err;
+        	sqlConn.query(query, function (err, results) {
+                if (err) throw err;
+                
                 if(results.length > 0){
-                    mongo.connect(url, {useNewUrlParser : true}, (err, client)=>{
+                    mongoConn.then(client => {
+                        let collection = client.db(`${sender}`).collection(`${receipient}`);
+                        collection.find({}, {sort: [['_id', -1]], limit:50}).toArray(function (err, result) {
+                            if (err) throw err;
+                        
+                            // The sort option make the last message come first, so Reverse the array so that the last message is displayed last.
+                            let reversedArray =[];
+                            for(let i = 0, j = result.length-1; j > -1; i++, j--){
+                                reversedArray[i] = result[j];
+                            }
+                            // Send the array of message to the client.
+                            socket.emit('add2Chat', reversedArray, results[0].profile_picture, results[0].uID);
+                        });
 
-                        if (err) {
-                        	MongoErrorHandler(err);
-                        }else{
-    
-                        	let collection = client.db(`${sender}`).collection(`${receipient}`);
-                        	collection.find({}, {sort: [['_id', -1]], limit:50}).toArray(function (err, result) {
-                            	if (err) throw err;
-                            
-                            	// The sort option make the last message come first, so Reverse the array so that the last message is displayed last.
-                            	let reversedArray =[];
-                            	for(let i = 0, j = result.length-1; j > -1; i++, j--){
-                                	reversedArray[i] = result[j];
-                            	}
-                            	// Send the array of message to the client.
-                            	socket.emit('add2Chat', reversedArray, results[0].profile_picture, results[0].uID);
-                        	});
-                        	client.close();
-                        }
+                    }).catch(err => {
+                        MongoErrorHandler(err);
                     });
                 }
-        	});
+            });
+            
         }catch(err){
         	console.warn(err);
         }
@@ -742,30 +708,29 @@ io.on('connection', function(socket) {
     socket.on("read message", function(sender, message_list) {
         console.log("read-message-acknowledged");
         try{
-            mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-                if (err) {
-                	MongoErrorHandler(err);
-                }else{
+            mongoConn.then(client => {
+                let collection = client.db("usersOnline").collection("all");
         
-                	let collection = client.db("users_online").collection("all");
-        
-                	collection.findOne({"username": sender},{_id: 0, uID: 1}, function(err, user_object){
-                    	if (err) console.warn(err);
-                    	try{
-                        	message_list.forEach(msg_id => {
-                            	console.log("update-message-state");
-                            	io.sockets.connected[user_object.sock.toString()].emit('update-message-state', {
-                                	id: msg_id,
-                                	state: 2
-                            	});
-                        	});
-                    	}catch(e){
-                        	console.warn(e.message);
-                    	}
-                	});
-                	client.close();
-                }
+                collection.findOne({"username": sender},{_id: 0, uID: 1}, function(err, user_object){
+                    if (err) console.warn(err);
+                    try{
+                        message_list.forEach(msg_id => {
+                            console.log("update-message-state");
+                            io.sockets.connected[user_object.sock.toString()].emit('update-message-state', {
+                                id: msg_id,
+                                state: 2
+                            });
+                        });
+                    }catch(e){
+                        console.warn(e.message);
+                    }
+                });
+                // client.close();
+
+            }).catch(err => {
+                MongoErrorHandler(err);
             });
+
         }catch(err){
         	console.warn(err.message, '\nThe socketis not defined or active');
         }
@@ -774,7 +739,7 @@ io.on('connection', function(socket) {
     socket.on('delete message', function(sender, receiver, type, messages) {
         console.time("delete-messages-timer");
 
-        mongo.connect(url, {useNewUrlParser : true}, (err, client)=>{
+        mongoConn.connect(url, {useNewUrlParser : true}, (err, client)=>{
 
             var sender_collection = client.db(`${sender}`).collection(`${receiver}`),
                 receiver_collection = client.db(`${receiver}`).collection(`${sender}`);
@@ -819,7 +784,7 @@ io.on('connection', function(socket) {
                 	});
             	}
 
-            	client.close();
+            	// client.close();
            	}
         });
 
@@ -827,11 +792,11 @@ io.on('connection', function(socket) {
         socket.emit('update deleted messages', messages);
 
         // For receiver
-        mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+        mongoConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
             if (err) {
             	MongoErrorHandler(err);
             }else{
-            	let collection = client.db("users_online").collection("all");
+            	let collection = client.db("usersOnline").collection("all");
     
             	collection.findOne({"username": receiver},{_id: 0, uID: 1}, function(err, user_object){
                 	if (err) console.warn(err);
@@ -841,7 +806,7 @@ io.on('connection', function(socket) {
                     	console.warn(e.message);
                 	}
             	});
-            	client.close();
+            	// client.close();
             }
         });
 
@@ -879,30 +844,27 @@ io.on('connection', function(socket) {
         });
 
         let query = "SELECT uID FROM users WHERE username = '"+data.sender+"'";
-        connection.query(query, (err, [results]) => {
-
+        sqlConn.query(query, (err, [results]) => {
             if (err) throw err;
 
             try{
-            	mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-                	if (err) {
-                        MongoErrorHandler(err);
-                    }else{
+                mongoConn.then(client => {
+                    let collection = client.db("usersOnline").collection("all");
+                    collection.findOne({"username": data.receipient},{_id: 0, uID: 1}, function(err, sock_gotten){
+                        if (err) console.log(err);
+                        try{
+                            data.message["sender"] = data.sender;
+                            io.sockets.connected[sock_gotten.sock.toString()].emit('receiveMessage', data.message, results.uID);
+                        }catch(e){
+                            console.info('Socket is stale');
+                        }
+                    });
+                    // client.close();
 
-                		let collection = client.db("users_online").collection("all");
-                		collection.findOne({"username": data.receipient},{_id: 0, uID: 1}, function(err, sock_gotten){
-                			if (err) console.log(err);
-                			try{
-                                data.message["sender"] = data.sender;
-                				io.sockets.connected[sock_gotten.sock.toString()].emit('receiveMessage', data.message, results.uID);
-                			}catch(e){
-                				console.info('Socket is stale');
-                			}
-                		});
-                		client.close();
-                	}
+                }).catch(err => {
+                    MongoErrorHandler(err);
                 });
-                	
+
           	}catch(err){
             	console.log(err, '\nThe socketis not defined or active');
            	}
@@ -914,7 +876,7 @@ io.on('connection', function(socket) {
 
     socket.on('upload', function(data) {
         if(!files[`${data.file.name}`]){
-            files[`${data.file.name}`] = Object.assign({}, file_structure, {body: data.body}, data.file);
+            files[`${data.file.name}`] = Object.assign({}, fileStructure, {body: data.body}, data.file);
             files[`${data.file.name}`].data = []
             console.log("uploading..");
         }
@@ -932,7 +894,7 @@ io.on('connection', function(socket) {
             var fileBuffer = Buffer.concat(files[`${data.file.name}`].data);
             var filename = encodeURI(data.file.name);
             
-            fs.writeFile(__dirname +'/Public/Uploads/tmp/'+ filename, fileBuffer, (err)=>{
+            fs.writeFile(__dirname +'/public/Uploads/tmp/'+ filename, fileBuffer, (err)=>{
                 let message_body = files[`${data.file.name}`].body;
                 // console.log("Getting there: ", message_body.message.message.content)
                 message_body.message.message.content = null;
@@ -961,38 +923,34 @@ io.on('connection', function(socket) {
     
     	try{
         	let query = "SELECT * FROM users WHERE username = '"+username+"'";
-        	connection.query(query, function (err, [results]) {
+        	sqlConn.query(query, function (err, [results]) {
 
             	if (err) throw err;
 
-				mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-					if (err) {
-						MongoErrorHandler(err);
-					}else{
+                mongoConn.then(client => {
+                    var collection = client.db(`${username}`).collection('settings');
 			
-						var collection = client.db(`${username}`).collection('settings');
-			
-						collection.find().toArray((err, [result])=>{
-							if (err) throw err;
-						
-							let details = {
-									id : results["uID"],
-									username : results["username"],
-									bio : results["bio"],
-									phone : results["phone"],
-									email : results["email"],
-									pp : results["profile_picture"],
-									wp: result["chatwall"]
-							}
-					
-							socket.emit('receive_details', details);
-						});
-						
-						client.close();
-					}
-			
-				});
-			
+                    collection.find().toArray((err, [result])=>{
+                        if (err) throw err;
+                    
+                        let details = {
+                                id : results["uID"],
+                                username : results["username"],
+                                bio : results["bio"],
+                                phone : results["phone"],
+                                email : results["email"],
+                                pp : results["profile_picture"],
+                                wp: result["chatwall"]
+                        }
+                
+                        socket.emit('receive_details', details);
+                    });
+                    
+                    // client.close();
+
+                }).catch(err => {
+                    MongoErrorHandler(err);
+                });
         	});
         
         }catch(err){
@@ -1003,7 +961,7 @@ io.on('connection', function(socket) {
     
     socket.on('get preferences', (username)=>{
     	try{
-    		mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+    		mongoConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
     			if (err) {
     				MongoErrorHandler(err);
     			}else{
@@ -1015,7 +973,7 @@ io.on('connection', function(socket) {
     					socket.emit("set preferences", result);
     				});
     				
-    				client.close();
+    				// client.close();
     			}
     		});
     	
@@ -1029,7 +987,7 @@ io.on('connection', function(socket) {
 
         let query = "SELECT DISTINCT uID, username, phone, telcode, bio, profile_picture FROM users WHERE phone = '"+phone_no+"' AND username != '"+username+"' LIMIT 1";
 
-        connection.query(query, function (err, [results]) {
+        sqlConn.query(query, function (err, [results]) {
 
             if (err) throw err;
 			// console.log('correct');
@@ -1058,12 +1016,12 @@ io.on('connection', function(socket) {
             case 'video call':
                 
                 try{
-                	mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
+                	mongoConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
                 		if (err) {
                 			MongoErrorHandler(err);
                 		}else{
                 
-                			let collection = client.db("users_online").collection("all");
+                			let collection = client.db("usersOnline").collection("all");
                 
                 			collection.findOne({"username": data.receiver},{_id: 0, uID: 1}, (err, sock_gotten) => {
                 				if (err) console.log(err);
@@ -1073,7 +1031,7 @@ io.on('connection', function(socket) {
                 					console.log("socket is stale for video");
                 				}
                 			});
-                			client.close();
+                			// client.close();
                 		}
                 	});
                 
@@ -1084,12 +1042,12 @@ io.on('connection', function(socket) {
 
             case 'voice call':
 				try{
-					mongo.connect(url, {useNewUrlParser: true}, (err, client) => {
+					mongoConn.connect(url, {useNewUrlParser: true}, (err, client) => {
 						if (err) {
 							MongoErrorHandler(err);
 						}else{
 						
-							let collection = client.db("users_online").collection("all");
+							let collection = client.db("usersOnline").collection("all");
 				
 							collection.findOne({"username": data.receiver},{_id: 0, uID: 1}, (err, sock_gotten) => {
 								if (err) console.log(err);
@@ -1101,7 +1059,7 @@ io.on('connection', function(socket) {
 								}
 							});
 							
-							client.close();
+							// client.close();
 						}
 					});
 				
@@ -1118,25 +1076,22 @@ io.on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
-    	var date=new Date();
-        var time_string=mf.formatTime(date.getHours(), date.getMinutes());
+    	var date = new Date();
+        var timeString = mf.formatTime(date.getHours(), date.getMinutes());
         
-    	mongo.connect(url, {useNewUrlParser: true}, (err, client)=>{
-    		if (err) {
-    			MongoErrorHandler(err);
-    		}else{
-    		
-    			let collection = client.db("users_online").collection("all");
-    			collection.updateMany({"sock": socket.id},{$set:{"status": "offline", "time_stamp": time_string}}, function(err, result){
-    				if (err) console.log(err);
-    			});
-    			
-    			client.close();
-    		}
-    	});
+    	mongoConn.then(client => {
+
+            let collection = client.db("usersOnline").collection("all");
+            collection.updateMany({"sock": socket.id},{$set:{"status": "offline", "time_stamp": timeString}}, function(err, result){
+                if (err) log(err);
+            });
+            
+    	}).catch(err => {
+            MongoErrorHandler(err);
+        });
     	
-   		console.log(time_string);
-    	socket.broadcast.emit("offline", "offline", time_string)
+   		console.log(timeString);
+    	socket.broadcast.emit("offline", "offline", timeString)
     });
 
 });

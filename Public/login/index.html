@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=7">
+    <title>Login to your hitmee account</title>
+
+    <link rel="shortcut icon" href="../assets/images/fav-icon.png" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/images/icofont/icofont.min.css">
+    <link rel="stylesheet" type="text/css" href="../hitmee.css">
+    <link rel="stylesheet" type="text/css" href="hitmee_login.min.css" />
+
+    <noscript><a href="https://termsfeed.com/cookie-consent/">Cookie Content by TermsFeed</a></noscript>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/lib/greensock/minified/gsap.min.js"></script>
+    <script src="hitmee_login.min.js"></script>
+</head>
+
+<body>
+    <header class="rows">
+        <div class="rows" style="align-items: center">
+            <a href="/" style="margin: 0 1rem; align-items: center;" class="rows"><img src="../assets/images/fav-icon.png" alt="website_logo" id="logo"></a>
+            <h2>HITMEE</h2>
+        </div>
+
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Other Services</a>
+            <a href="#">Pricing</a>
+            <a href="#">FAQs</a>
+        </nav>
+    </header>
+
+    <!-- <aside>
+        <section class="login-section">
+            <section id="main-container">
+
+                <form action="/admin" method="POST" id="login-wrapper" class="login-wrapper" onsubmit="return validate()">
+                        <div class="avatar"></div>
+
+                        <div class="error" id="error"></div>
+        
+                        <label for="login_user" class="label">Username</label>
+                        <input type="text" name="username" id="login_user" placeholder="Enter your username"  onblur="checkExisting()"/>
+                        <button data-username-check-indicator>
+                            <i class=""></i>
+                            <span data-indicator-text></span>
+                        </button>
+
+                        <label for="login_pass" class="label">Password</label>
+                        <input type="password" name="password" id="login_pass" placeholder="Enter password" autocomplete="current-password" />
+        
+                        <div id="login-extra" class="login-extra">
+                            <div>
+                                <label for="login_email" class="label">Email</label>
+                                <input type="email" name="login_email" id="login_email" placeholder="Enter your email address" />
+                            </div>
+                            <div>
+                                <label for="login_phone" class="label">Phone Number</label>
+                                <input type="tel" name="login_phone" id="login_phone" placeholder="Enter phone number" />
+                            </div>
+                        </div>
+        
+                        <div><input type="submit" id='Submit' value="LOG IN" disabled></div>
+                </form>
+            </section>
+        </section>
+    </aside> -->
+
+    <main class="cols">
+        <div class="rows lg-100">
+            <div id="chat-type-login" class="cols lg-45 element gadget-wrapper">
+                <div class="phone">
+                    <div class="rows phone-top">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+        
+                    <form id="chat-form" class="cols phone-screen">
+                        <div id="chat-form-screen" class="cols chat-form-screen">
+                            <div class="chat-wrapper">
+                                <div class="chat neutral-chat">Chat to login</div>
+                            </div>
+        
+                            <!-- <div class="chat-wrapper">
+                                <div class="chat reply-chat">Hello, I am Hitmee. What is your username?</div>
+                            </div>
+        
+                            <div class="chat-wrapper">
+                                <div class="chat sent-chat">Tehmi2000</div>
+                            </div> -->
+        
+                        </div>
+                        <div class="rows chat-form-controls">
+                            <input type="text" name="login-credentials" id="login-credentials" class="lg-90" placeholder="Type username here..." data-type="login" data-count='0'>
+                            <button class="rows login-btn"><i class="icofont-paper-plane"></i></button>
+                        </div>
+                    </form>
+                    
+                    <div class="rows phone-bottom">
+                        <span><i class="icofont-min">mini</i></span>
+                        <span><i class="icofont-home"></i></span>
+                        <span><i class="">back</i></span>
+                    </div>
+                </div>
+                <div class="gadget-bottom">
+                    <div class="rows">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <button class="element-btn">Switch To Normal Form</button>
+            </div>
+
+            <div id="normal-type-login" class="none lg-45 element gadget-wrapper">
+                <div class="phone">
+                    <div class="rows phone-top">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                    <form id="login-form" action="/admin" method="POST" class="cols phone-screen">
+                        <div id="login-form-screen" class="cols chat-form-screen">
+                            <div class="notice-wrapper">
+                                <div class="notice neutral-notice">Log in to your account</div>
+                            </div>
+
+                            <div class="cols form-line">
+                                <label for="username">Username</label>
+                                <input type="text" name="username" id="username" class="lg-90" placeholder="Type username here..." required>
+                            </div>
+                            
+                            <div class="cols form-line">
+                                <label for="password">Password</label>
+                                <input type="password" name="password" id="password" class="lg-90" placeholder="Type password here..." required>
+                            </div>
+
+                            <div id="create-extra" class="none" style="background-color: transparent;">
+                                <div class="cols form-line">
+                                    <label for="confirm-password">Confirm Password</label>
+                                    <input type="password" name="confirm-password" id="confirm-password" class="lg-90" placeholder="Type password here...">
+                                </div>
+
+                                <div class="rows" style="background-color: transparent;">
+                                    <div class="cols form-line">
+                                        <label for="email">Email Address</label>
+                                        <input type="email" name="email" id="email" class="lg-90" placeholder="Type email address here...">
+                                    </div>
+    
+                                    <div class="cols form-line">
+                                        <label for="phone-number">Mobile Number</label>
+                                        <input type="tel" name="phone-number" id="phone-number" class="lg-90" placeholder="Type password here...">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                        <div class="rows login-form-controls">
+                            <button class="rows login-btn">Login</button>
+                        </div>
+                    </form>
+
+                    <div class="rows phone-bottom">
+                        <span><i class="icofont-min">mini</i></span>
+                        <span><i class="icofont-home"></i></span>
+                        <span><i class="">back</i></span>
+                    </div>
+                </div>
+
+                <div class="gadget-bottom">
+                    <div class="rows">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <button class="element-btn">Switch To Chat Form</button>
+            </div>  
+    
+            <div id="intro" class="rows element">
+                <img id="avatar" src="../assets/images/d2d88005bdd8195bb5930634e712c8de-businessman-profession-cartoon-by-vexels.png" alt="">
+                <div id="slider" class="cols">
+                    <div class="cols slide">
+                        <h3>About Us</h3>
+                        <span>Hitmee is a instant messaging web application that helps you connect with your friends and family all over the globe</span>
+                    </div>
+    
+                    <div class="cols slide">
+                        <h3>How To Login?</h3>
+                        <span>To login, just use the phone to your right and chat with our server. Tell it your username and password and it would log you in!</span>
+                    </div>
+
+                    <div class="cols slide">
+                        <h3>How To Sign Up?</h3>
+                        <span>To sign up, you can input a username that you would like to use. If the username is available, our bot would let you know. Alternatively, you can type: /signup, and our bot would direct you on how to sign up.</span>
+                    </div>
+    
+                    <div class="cols slide">
+                        <h3>Made A Mistake?</h3>
+                        <span>To restart the chat, just type: /restart. This is known as a bot action. Other actions available are: /signup (To sign up), /back (To go back to the previous question), /about (To learn more about Hitmee)</span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="sections rows-reverse lg-100">
+            <div class="element">
+                <img src="../assets/images/5245.png" alt="">
+            </div>
+
+            <div class="element cols">
+                <h3>OUR PRODUCTS & SERVICES</h3>
+                <span>Hitmee is a instant messaging web application that helps you connect with your friends and family all over the globe</span>
+                <a href="#" class="element-btn">CHECK IT OUT</a>
+            </div>
+        </div>
+
+        <div class="sections rows lg-100">
+            <div class="element">
+                <img src="../assets/images/3536304.png" alt="">
+            </div>
+
+            <div class="element cols">
+                <h3>TEAM SUPPORT</h3>
+                <span>Hitmee is a instant messaging web application that helps you connect with your friends and family all over the globe</span>
+                <a href="#" class="element-btn">CHECK IT OUT</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="cols">
+        <div class="links rows">
+            <div class="cols">
+                <span class="f-heading">HELP LINKS</span>
+                <a href="/support">Contact Us</a>
+                <a href="#">About Us</a>
+                <a href="#">Terms and Conditions</a>
+            </div>
+    
+            <div class="cols">
+                <span class="f-heading">QUICK LINKS</span>
+                <a href="/login">Log In</a>
+                <a href="#">About Us</a>
+            </div>
+
+            <div class="cols">
+                <span class="f-heading">SOCIAL LINKS</span>
+                <a href="https://wa.me/2349059620514?text=Hello%20Univers,%20I%20would%20like%20to%20know%20more%20about%20you">Whatsapp</a>
+                <a href="#">Twitter</a>
+                <a href="#">Instagram</a>
+                <a href="#">Facebook</a>
+            </div>
+        </div>
+
+        <div class="fill-container">
+            <span class="rows">Copyright &copy; 2019 Univers.com. All rights reserved</span>
+        </div>
+    </footer>
+    
+    <script src='https://termsfeed.com/cookie-consent/releases/3.0.0/cookie-consent.js'></script>
+    <script src="../cookie-consent.js"></script>
+</body>
+
+</html>

@@ -14,10 +14,12 @@
   "author": "Temiloluwa",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^7.2.6",
     "body-parser": "*",
+    "cloudinary": "^1.23.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
-    "express-fileupload": "^1.1.1-alpha.3",
+    "express-fileupload": "^1.2.0",
     "express-session": "^1.15.6",
     "fs": "0.0.1-security",
     "https": "^1.0.0",

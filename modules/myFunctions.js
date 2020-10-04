@@ -1,8 +1,6 @@
 const crypto = require('crypto');
 const algorithm = 'aes-256-cbc';
-const mongo=require('mongodb').MongoClient;
-const url = require("../config").MONGO_URL;
-const connection = require ("../config").connection;
+const { connection, mongoConn, log} = require ("../config");
 
 exports.searchArrayFor = function (array, username){
     for (let index = 0; index < array.length; index++) {
@@ -21,17 +19,18 @@ exports.updateChatArray = (object)=>{
 
 	// console.log(object);
 	
-    mongo.connect(url, {useNewUrlParser : true}, (err, client)=>{
-
-        if (err) throw err;
-
-        var collection = client.db(`${object.sender}`).collection(`${object.receipient}`);
+	mongoConn.then(client => {
+		var collection = client.db(`${object.sender}`).collection(`${object.receipient}`);
 
         collection.insertOne(object.message, function(err) {
-            if (err) throw err;
+            if (err) log(err);
         });
 
-        client.close();
+		client.close();
+		
+	}).catch(err => {
+		console.error(err);
+		log(err);
 	});
 	
 	// console.log(object);
@@ -74,21 +73,24 @@ exports.addBuddy = function(friendID, myUsername){
 		console.info (myUsername);
 		let query = "SELECT DISTINCT uID, username, profile_picture FROM users WHERE uID = '"+friendID+"' AND username != '"+myUsername+"' LIMIT 1";
 	
-		connection.query(query, (errs, result)=>{
-			if (errs) throw  errs;
-			
-			mongo.connect(url, {useNewUrlParser: true}, (errm, client)=>{
-				if (errm) throw errm;
-	
+		connection.query(query, (errs, [result])=>{
+			if (errs) log(errs);
+
+			mongoConn.then(client => {
 				let collection = client.db(`${myUsername}`).collection(`Friends`);
 	
-				let insertValue = {uID: result[0].uID,
-									username : result[0].username,
-									profile_picture: result[0].profile_picture};
+				let insertValue = {
+					uID: result.uID,
+					username : result.username,
+					profile_picture: result.profile_picture
+				};
 	
 				collection.updateOne({"uID": friendID}, {$setOnInsert: insertValue}, {upsert: true}, function(err){});
-	
 				client.close();
+
+			}).catch(err => {
+				console.error(err);
+				log(errm);
 			});
 	
 		});
@@ -96,27 +98,30 @@ exports.addBuddy = function(friendID, myUsername){
 		query = "SELECT DISTINCT uID, username FROM users WHERE uID = '"+friendID+"' LIMIT 1";
 		
 		connection.query(query, (errs, result)=>{
-			if (errs) throw  errs;
+			if (errs) log(errs);
 		
 		
 			let query = "SELECT DISTINCT uID, username, profile_picture FROM users WHERE username = '"+myUsername+"' AND uID != '"+friendID+"' LIMIT 1";
-			connection.query(query, (err, rows)=>{
-					
-				mongo.connect(url, {useNewUrlParser: true}, (errm, client)=>{
-					if (errm) throw errm;
-					var collection = client.db(`${result[0].username}`).collection("Friends");
+			connection.query(query, (err, [rows])=>{
+				if (err) log(err);
+
+				mongoConn.then(client => {
+					var collection = client.db(`${result.username}`).collection("Friends");
 					let insertValue = {
-										uID: rows[0].uID,
-										username : rows[0].username,
-										profile_picture: rows[0].profile_picture
+						uID: rows.uID,
+						username : rows.username,
+						profile_picture: rows.profile_picture
 					};
 					
-					collection.updateOne({"uID": rows[0].uID}, {$setOnInsert: insertValue}, {upsert: true}, function(err){
-						if(err) throw err;
+					collection.updateOne({"uID": rows.uID}, {$setOnInsert: insertValue}, {upsert: true}, function(err){
+						if(err) log(err);
 					});
 					client.close();
-				});
-		
+
+				}).catch(err => {
+					console.error(err);
+					log(err);
+				});		
 			});
 		
 		});
@@ -125,10 +130,10 @@ exports.addBuddy = function(friendID, myUsername){
 	}
 }
 
-exports.formatTime = (hours, minutes)=>{
-    var ampm=(hours>=12)? 'PM' : 'AM';
-    var fhours=(hours>12)? hours-12 : hours;
-    var fmin=(JSON.stringify(minutes).length==1)? '0'+minutes : minutes;
-    var ftime=fhours+':'+fmin+' '+ampm;
+exports.formatTime = (hours, minutes) => {
+    var ampm = (hours >= 12)? 'PM' : 'AM';
+    var fhours = (hours > 12)? hours - 12 : hours;
+    var fmin = (JSON.stringify(minutes).length === 1)? `0${minutes}` : minutes;
+    var ftime = `${fhours}:${fmin} ${ampm}`;
     return ftime;
 }
