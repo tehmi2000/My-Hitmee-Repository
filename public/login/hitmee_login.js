@@ -229,7 +229,14 @@ const createChat = function (message, alias) {
 };
 
 const replyChat = function (message) {
+
 	let ids = [];
+	let nullChat = document.querySelector("#reply_null");
+
+	if(nullChat){
+		nullChat.parentElement.removeChild(nullChat);
+	}
+
 	let create = function (container, content) {
 		let elementId = Math.round(Math.random()*10e5);
 		let div0 = createComponent("DIV", null, ["chat-wrapper"]);
@@ -245,13 +252,33 @@ const replyChat = function (message) {
 		container.scrollTop = container.scrollHeight;
 	};
 
+	let createNull = function (container) {
+		let elementId = null;
+		let div0 = createComponent("DIV", null, ["chat-wrapper"]);
+		let div1 = createComponent("DIV", null, ["rows", "chat", "reply-chat"]);
+		let span1 = createComponent("span", null, ["blink"]);
+		let span2 = createComponent("span", null, ["blink"]);
+		let span3 = createComponent("span", null, ["blink"]);
+
+		div1 = joinComponent(div1, span1, span2, span3);
+		div0 = joinComponent(div0, div1);
+		div0.id = `reply_${elementId}`;
+
+		container.appendChild(div0);
+
+		ids.push(`#reply_${elementId}`);
+		container.scrollTop = container.scrollHeight;
+	};
+
 	let container = document.querySelector("#chat-form .chat-form-screen");
-	if(typeof message === typeof []){
+	if(typeof message === "object" && message !== null){
 		message.forEach(singleMessage => {
 			create(container, singleMessage);
 		});
-	}else{
+	}else if(typeof message === "string" && message !== null){
 		create(container, message);
+	}else{
+		createNull(container);
 	}
 
 	animateChats(ids, "reply");
@@ -267,6 +294,7 @@ const analyseInput = function (dataValue, inputElement) {
 		botCommands(dataValue, index, type);
 	}else{
 		if(index === 0){
+			replyChat(null);
 			socket.emit("check existing", dataValue);
 		}else{
 			mainBotLogic(index, type, dataValue);
@@ -407,6 +435,8 @@ const authenticateUser = function(count){
 	let timeout = count * 5;
 	let apiUrl = `/admin`;
 
+	replyChat(null);
+
 	fetch(apiUrl, {
 		method: "POST",
 		body: JSON.stringify(userData['login'].data),
@@ -453,6 +483,8 @@ const createUser = function (count) {
 	count = count || 1;
 	let timeout = count * 5;
 	let apiUrl = `/admin`;
+
+	replyChat(null);
 
 	fetch(apiUrl, {
 		method: "POST",

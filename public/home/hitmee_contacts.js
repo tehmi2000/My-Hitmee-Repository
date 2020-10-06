@@ -203,7 +203,7 @@ function showImage(event){
         dialogWidth = Math.round(min(windX, windY)*0.8),
         dialogHeight = dialogWidth;
 
-    TweenMax.fromTo("#dialog", 0.2, {
+    gsap.fromTo("#dialog", 0.2, {
         display: "none",
         x: event.clientX,
         y: event.clientY,
@@ -235,7 +235,7 @@ function hideImage(event){
         dialogWidth = Math.round(windX * 0.7),
         return_windX = Math.round((windX-dialogWidth)/2) * -1;
 
-    TweenMax.to("#dialog", 0.5, {
+    gsap.to("#dialog", 0.5, {
             x: return_windX,
             y: 0,
             width: 0, 
@@ -344,7 +344,7 @@ const addNewUser = function (object) {
 
         get('contact_box').appendChild(div1);
         if(!sessionStorage.getItem("Active Login")){
-			TweenMax.from(`#div_${object.uID}`, 0.1, {marginLeft: "101%"});
+			gsap.from(`#div_${object.uID}`, 0.1, {marginLeft: "101%"});
 			sessionStorage.setItem("Active Login", true);
 		}
         

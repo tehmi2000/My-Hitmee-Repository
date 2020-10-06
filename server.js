@@ -115,7 +115,7 @@ app.post('/admin', (req, res)=>{
         }
     };
 
-    const createNewAccount = function () {
+    const createNewAccount = function (type) {
         const sid = Math.ceil(Math.random()*10e8);
         let query = "INSERT INTO users (uID, username, password, bio, telcode, phone, email, profile_picture) VALUES ('"+sid.toString()+"', '"+userUsername+"', '"+mf.encrypt(userPassword)+"', 'I am  new to Hitmee', '+234', '"+user_phone.toString()+"', '"+user_email.toString()+"', 'images/contacts-filled_e.png')";
 
@@ -189,14 +189,20 @@ app.post('/admin', (req, res)=>{
         res.cookie('hitmee-id', sid);
         res.cookie('hitmee-username', userUsername);
         res.cookie('hitmee-val', VALIDATION_COMPLETE,{maxAge:300000});
-        res.json({
-            status: "ok",
-            statusCode: 200,
-            redirectUrl: `/success_fail.html?sess=${mf.genHex()}&redirect=home`
-        });
+
+        if(type){
+            res.redirect(`/success_fail.html?sess=${mf.genHex()}&redirect=home`);
+        }else{
+            res.json({
+                status: "ok",
+                statusCode: 200,
+                redirectUrl: `/success_fail.html?sess=${mf.genHex()}&redirect=home`
+            });
+        }
+        
     };
 
-    const login = function (usersDBdata){
+    const login = function (usersDBdata, type){
         let VALIDATION_COMPLETE = false;
         if (userPassword === mf.decrypt(usersDBdata.password)){
 
@@ -221,12 +227,16 @@ app.post('/admin', (req, res)=>{
             res.cookie('hitmee-id', usersDBdata.uID);
             res.cookie('hitmee-username', userUsername);
             res.cookie('hitmee-val', VALIDATION_COMPLETE,{maxAge:300000});
-            res.json({
-                status: "ok",
-                statusCode: 200,
-                redirectUrl: `/success_fail.html?sess=${mf.genHex()}&redirect=home`
-            });
-
+            if(type){
+                res.redirect(`/success_fail.html?sess=${mf.genHex()}&redirect=home`);
+            }else{
+                res.json({
+                    status: "ok",
+                    statusCode: 200,
+                    redirectUrl: `/success_fail.html?sess=${mf.genHex()}&redirect=home`
+                });
+            }
+        
             console.log("Sent");
 
         // Mismatched password...
@@ -234,10 +244,15 @@ app.post('/admin', (req, res)=>{
             VALIDATION_COMPLETE = false;
             res.cookie('hitmee-val', VALIDATION_COMPLETE, {maxAge:300000});
             // res.redirect('/?error=novalidid');
-            res.json({
-                status: "fail",
-                statusCode: 401
-            });
+            if(type){
+                res.redirect(`/login?sess=${mf.genHex()}&redirect=home`);
+            }else{
+                res.json({
+                    status: "fail",
+                    statusCode: 401
+                });
+            }
+            
             console.log('Password Mismatch for '+userUsername+'\n\n');
         }
     };
@@ -246,6 +261,7 @@ app.post('/admin', (req, res)=>{
     const userUsername = formatName(req.body["username"]);
     const user_phone = req.body['phone-number'] || '08000000000';
     const user_email = req.body.email || 'example@coolmail.com';
+    const userType = req.body.noscript;
     let query = `SELECT * FROM users WHERE username = '${userUsername}'`;
 
     console.log(req.body);
@@ -255,10 +271,10 @@ app.post('/admin', (req, res)=>{
 
         if(results){
             console.log('calling login...');
-            login(results);
+            login(results, userType);
         }else{
             console.log('calling createNewAccount...');
-            createNewAccount();
+            createNewAccount(userType);
         }
     });
 });

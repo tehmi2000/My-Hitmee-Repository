@@ -86,13 +86,20 @@ header{
 	color: #eee;
 }
 
+header nav .active{
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid white;
+}
+
  .header{
     display: flex;
     flex-direction: row;
 }
 
-.foot_note{
-    font-size: 0.9em;
+footer.foot_note{
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
     text-align: center;
     padding: 1em;
     color: #ccc;
@@ -100,6 +107,7 @@ header{
     background-image:  linear-gradient(#479b59, #479b59); /*#204c55; */
     border-top:1px solid #429754;
     height: auto;
+    margin-top: 0;
 }
 
 [class*="-label"]{

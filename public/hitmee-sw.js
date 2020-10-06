@@ -7,12 +7,12 @@ self.addEventListener("install", function(event) {
 		.then(function(cache) {
 			console.log("Opened Cache!");
 			var urlToCache = [
-				'/offline/index.html',
 				'/hitmee.css',
 				'/hitmee.js',
 				'/assets/images/icofont/icofont.min.css',
 				'/assets/images/fav-icon.png',
-				'/assets/images/dariusz-57167-unsplash.jpg'
+				'/assets/images/dariusz-57167-unsplash.jpg',
+				'/offline/index.html'
 			];
 			return cache.addAll(urlToCache);
 		})
