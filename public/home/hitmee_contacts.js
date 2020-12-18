@@ -1,6 +1,6 @@
-const online_users = [];
-let no_of_unread_msg = 0;
-let current_section = "";
+const onlineUsers = [];
+let noOfUnreadMsg = 0;
+let currentSection = "";
 
 // Modify the array prototype
 Object.defineProperty(Array.prototype, "last", {get: function(){
@@ -32,7 +32,7 @@ socket.on('add2Chat', function(data, picture, uID){
         f_message = "<i>No chat. Tap to chat</i>";
     }
 
-    online_users.forEach(person => {
+    onlineUsers.forEach(person => {
         if(person.id === uID){
         	try{
         		msg = f_message;
@@ -55,9 +55,8 @@ socket.on('logged out', function(userID) {
     removeUser(userID);
 });
 
-socket.on('init_chatroom', function(sessID, buddyName) {
-    document.cookie="chattingWith="+buddyName+";";
-    navigatePage('chatroom', sessID, buddyName);
+socket.on('proceed to chatroom', function (sessID, buddyName) {
+    console.log('socket returned');
 });
 
 socket.on('isTyping', function (data, sender, uID) {
@@ -83,10 +82,10 @@ socket.on('receiveMessage', function(data, uID) {
     }
 
     console.log('receive message event:',f_message);
-    no_of_unread_msg++;
+    noOfUnreadMsg++;
     rearrange(uID);
 
-    online_users.forEach(person=>{
+    onlineUsers.forEach(person=>{
         if(person.id === uID){
             person.unread += 1;
             person.message = f_message;
@@ -117,80 +116,6 @@ socket.on("receiveVoiceCall", function(data, username){
 });
 
 
-document.addEventListener("DOMContentLoaded", function(event){
-	let nStatus = get("nav_status");
-	let nChat = get("nav_chats");
-	let nCalls = get("nav_games");
-    let nFloatButton = get("add-friend");
-
-    nFloatButton.setAttribute('onclick', "showFriendBox()");
-
-    forEach(document.querySelectorAll(".friend-search-box .close"), function(element) {
-        element.addEventListener("click", function() {
-            document.querySelector("aside.friend-search-box").style.top  = "calc(0vh - 31vh)";
-        });
-    });
-
-    nStatus.addEventListener('click', function(evt){
-    	forEach(document.querySelectorAll(".active"), (elem)=>{
-    		elem.classList.toggle("active", false);
-    	});
-    	evt.currentTarget.classList.toggle("active", true);
-        current_section = "status";
-
-        get("sect").style.marginLeft="0%";
-        document.querySelector("#add-friend i").setAttribute("class", "icofont-lens");
-        nFloatButton.removeAttribute('onclick');
-        nFloatButton.setAttribute('onclick', "navigatePage('chatroom')");
-    });
-
-	nChat.addEventListener('click', function(evt){
-        forEach(document.querySelectorAll(".active"), (elem)=>{
-        	elem.classList.toggle("active", false);
-        });
-        evt.currentTarget.classList.toggle("active", true);
-        current_section = "chats";
-        
-        get("sect").style.marginLeft="-100%";
-        document.querySelector("#add-friend i").setAttribute("class", "icofont-search-user");
-        nFloatButton.removeAttribute('onclick');
-        nFloatButton.setAttribute('onclick', "showFriendBox()");
-	});
-	
-	nCalls.addEventListener('click', function(evt){
-		forEach(document.querySelectorAll(".active"), (elem)=>{
-			elem.classList.toggle("active", false);
-		});
-		evt.currentTarget.classList.toggle("active", true);
-		current_section = "calls";
-		
-        get("sect").style.marginLeft="-200%";
-        document.querySelector("#add-friend i").setAttribute("class", "icofont-ui-delete");
-		nFloatButton.removeAttribute('onclick');
-		nFloatButton.setAttribute('onclick', "navigatePage('chats')");
-	});
-
-    if(current_section === ""){
-        nChat.classList.toggle("active", true);
-        current_section = "chats";
-    }
-
-    if (getCookie('hitmee-username')){
-        document.querySelector("span#logo > span").innerHTML = "YOU";
-
-        if(!sessionStorage.getItem("New") && window.speechSynthesis){
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance("welcome " + getCookie("hitmee-username").value));
-            sessionStorage.setItem("New", true);
-        }
-
-        setTimeout(function(){getMyFriends();}, 500);
-	}else{
-		window.addEventListener("load", function(){
-            document.querySelector("span#logo > span").innerHTML = "";
-			alert('Unrecognised login session!');
-		});
-	}
-});
 
 const showFriendBox = function() {
     document.querySelector("aside.friend-search-box").style.top = "calc(50vh - 15vh)";
@@ -252,14 +177,27 @@ function hideImage(event){
 	get("dialog").style.height="0";
 }
 
-function getMyFriends() {
+const searchForUser = function (searchParams) {
+    return onlineUsers.find(itemInArray => {
+        return itemInArray[searchParams.searchKey] === searchParams.searchKeyValue;
+    });
+}
+
+const initiateChatroom = function (userID) {
+    let chatSessionId = genHex();
+    let buddyName = searchForUser({searchKey: 'id', searchKeyValue: userID}).username;
+    addStoredData('chattingWith', buddyName);
+    addStoredData('chatSessionId', chatSessionId);
+    window.location.href = `/chat?sessionID=${chatSessionId}&chattingWith=${buddyName}`;
+    // socket.emit('connectTo', event.currentTarget.id, getCookie("hitmee-username").value);
+};
+
+function getAllContact() {
     fetch(`/api/${getCookie("hitmee-username").value}/getFriends`).then(async function(response) {
         try {
-
-            let users_online_list = await response.json();
-            console.log(users_online_list);
-            displayUsersOnline(users_online_list);
-
+            let usersOnlineList = await response.json();
+            console.log(usersOnlineList);
+            displayUsersOnline(usersOnlineList);
         } catch (err) {
             console.error(err);
         }
@@ -274,18 +212,14 @@ function displayUsersOnline(array) {
     //      sock
     //      uID
     //      username
-
     if (array.length === 1 && get('no-online') === null) {
-        // debugger;
         let div1 = createComponent("DIV", "No user online");
         div1.setAttribute('id', 'no-online');
         get('contact_box').appendChild(div1);
+    }
 
-    }else if(array.length > 0){
-        for (let index = 0; index < array.length; index++) {
-            addNewUser(array[index]);
-        }
-    }else{
+    else if(array.length > 0) array.forEach(user => { addNewUser(user) });
+    else{
         let div1 = createComponent("DIV", "Logging you out in 5 seconds...");
         div1.setAttribute('id', 'no-online');
         get('contact_box').appendChild(div1);
@@ -297,12 +231,12 @@ function displayUsersOnline(array) {
     }
  }
 
-const addNewUser = function (object) {
+const addNewUser = function (user) {
+    debugger;
     // If new user to be added isnt me...
-
-    if(object.username != getCookie('hitmee-username').value ){
-        // Remove the 'no user online tag'...
-        if(get('no-online') != null || get('no-online') != undefined){
+    if(user.username !== getCookie('hitmee-username').value ){
+        // Remove the 'no user online tag if it exists...
+        if(get('no-online') !== null && get('no-online') !== undefined) {
             get('no-online').parentNode.removeChild(get('no-online'));
         }
 
@@ -310,28 +244,28 @@ const addNewUser = function (object) {
         let img1 = createComponent("IMG", null, ["user_dp"]);
         let div2 = createComponent("DIV", null, ["cols", "display-container"]);
         let div3 = createComponent("DIV", null, ["rows"]);
-        let span1 = createComponent("SPAN", object.username, ['chat-name']);
+        let span1 = createComponent("SPAN", user.username, ['chat-name']);
         let span2 = createComponent("SPAN", "active", ["display-time"]);
         let div4 = createComponent("DIV", null, ["rows"]);
         let span3 = createComponent("SPAN", " ", ['chat-message']);
-        let span4 = createComponent("SPAN", no_of_unread_msg, ['unread-indicator', 'hide']);
+        let span4 = createComponent("SPAN", noOfUnreadMsg, ['unread-indicator', 'hide']);
         let span5 = createComponent("SPAN", null, ["pass-section"]);
         let button0 = createComponent("button", null, ["lock-toggle"]);
         let i0 = createComponent("i", null, ["icofont-lock"]);
         let input0 = create("input");
 
-        img1.src = object.profile_picture;
-        img1.setAttribute("id", object.username);
+        img1.src = user.profile_picture;
+        img1.setAttribute("id", user.username);
         input0.setAttribute("type", "password");
         img1.addEventListener('click', showImage);
 
-        if(no_of_unread_msg === 0){
+        if(noOfUnreadMsg === 0){
             span4.classList.toggle('hide',true);
         }
 
-        span2.setAttribute('id', 't_'+object.username);
-        span3.setAttribute('id', 'm_'+object.uID);
-        span4.setAttribute('id', 'c_'+object.uID);
+        span2.setAttribute('id', 't_'+user.username);
+        span3.setAttribute('id', 'm_'+user.uID);
+        span4.setAttribute('id', 'c_'+user.uID);
 
         div3 = joinComponent(div3, span1, span2);
         div4 = joinComponent(div4, span3, span4);
@@ -340,27 +274,25 @@ const addNewUser = function (object) {
         span5 = joinComponent(span5, button0, input0);
         div1 = joinComponent(div1, img1, div2, span5);
 
-        div1.setAttribute('id', `div_${object.uID}`);
+        div1.setAttribute('id', `div_${user.uID}`);
 
         get('contact_box').appendChild(div1);
         if(!sessionStorage.getItem("Active Login")){
-			gsap.from(`#div_${object.uID}`, 0.1, {marginLeft: "101%"});
+			gsap.from(`#div_${user.uID}`, 0.1, {marginLeft: "101%"});
 			sessionStorage.setItem("Active Login", true);
 		}
         
-        div2.setAttribute('id', object.uID);
-        div2.onclick = function (event) {
-            socket.emit('connectTo', event.currentTarget.id, getCookie("hitmee-username").value);
-        };
+        div2.setAttribute('id', user.uID);
+        div2.onclick = ev => { initiateChatroom(ev.currentTarget.id); };
 
-        online_users.push({
-            id : object.uID,
-            username : object.username,
+        onlineUsers.push({
+            id : user.uID,
+            username : user.username,
             message : '',
             unread : 0
         });
 
-        socket.emit('getChat', getCookie("hitmee-username").value, object.username);
+        socket.emit('getChat', getCookie("hitmee-username").value, user.username);
     }
 };
 
@@ -382,11 +314,11 @@ function changeMessage(type, message, id){
             break;
 
         case (type === 'idle'):
-            console.log('online: ',online_users,'\n id: ', id);
+            console.log('online: ',onlineUsers,'\n id: ', id);
 
-            online_users.forEach(person=>{
+            onlineUsers.forEach(person =>{
                 if(person.id === id){
-                    get(id).innerHTML=person.message;
+                    get(id).innerHTML = person.message;
                 }
             });
             break;
@@ -548,3 +480,93 @@ function displaySearch(details) {
 function addFriend(username){
     socket.emit('addBuddy', username, getCookie("hitmee-username").value)
 }
+
+document.addEventListener("DOMContentLoaded", function(event){
+	let nStatus = get("nav_status");
+	let nChat = get("nav_chats");
+	let nCalls = get("nav_games");
+    let nFloatButton = get("add-friend");
+    let sideButton = document.querySelector("#set-button");
+
+    nFloatButton.setAttribute('onclick', "showFriendBox()");
+
+    forEach(document.querySelectorAll(".friend-search-box .close"), function(element) {
+        element.addEventListener("click", function() {
+            document.querySelector("aside.friend-search-box").style.top  = "calc(0vh - 31vh)";
+        });
+    });
+
+    nStatus.addEventListener('click', function(evt){
+    	forEach(document.querySelectorAll(".active"), (elem)=>{
+    		elem.classList.toggle("active", false);
+    	});
+    	evt.currentTarget.classList.toggle("active", true);
+        currentSection = "status";
+
+        get("sect").style.marginLeft="0%";
+        document.querySelector("#add-friend i").setAttribute("class", "icofont-lens");
+        nFloatButton.removeAttribute('onclick');
+        nFloatButton.setAttribute('onclick', "navigatePage('chatroom')");
+    });
+
+	nChat.addEventListener('click', function(evt){
+        forEach(document.querySelectorAll(".active"), (elem)=>{
+        	elem.classList.toggle("active", false);
+        });
+        evt.currentTarget.classList.toggle("active", true);
+        currentSection = "chats";
+        
+        get("sect").style.marginLeft="-100%";
+        document.querySelector("#add-friend i").setAttribute("class", "icofont-search-user");
+        nFloatButton.removeAttribute('onclick');
+        nFloatButton.setAttribute('onclick', "showFriendBox()");
+	});
+	
+	nCalls.addEventListener('click', function(evt){
+		forEach(document.querySelectorAll(".active"), elem => {
+			elem.classList.toggle("active", false);
+		});
+		evt.currentTarget.classList.toggle("active", true);
+		currentSection = "calls";
+		
+        get("sect").style.marginLeft="-200%";
+        document.querySelector("#add-friend i").setAttribute("class", "icofont-ui-delete");
+		nFloatButton.removeAttribute('onclick');
+		nFloatButton.setAttribute('onclick', "navigatePage('chats')");
+    });
+    
+    
+    sideButton.addEventListener("click", function (ev) {
+        let target = ev.currentTarget;
+        let element = document.querySelector("aside.side-menu");
+
+        if(target.classList.contains("open")){
+            // gsap.to(element, 0.6, { left: "120%"});
+            target.classList.replace("open", "close");
+        }else{
+            // gsap.to(element, 0.6, { marginRight: "70%"});
+            target.classList.replace("close", "open");
+        }
+    });
+
+    if(currentSection === ""){
+        nChat.classList.toggle("active", true);
+        currentSection = "chats";
+    }
+
+    if (getCookie('hitmee-username')){
+        document.querySelector("span#logo > span").innerHTML = "YOU";
+
+        if(!sessionStorage.getItem("New") && window.speechSynthesis){
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance("welcome " + getCookie("hitmee-username").value));
+            sessionStorage.setItem("New", true);
+        }
+
+        setTimeout(() => { getAllContact() }, 500);
+	}else{
+		window.addEventListener("load", function(){
+            document.querySelector("span#logo > span").innerHTML = "";
+			alert('Unrecognised login session!');
+		});
+	}
+});

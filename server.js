@@ -188,7 +188,7 @@ app.post('/admin', (req, res)=>{
         accessFolder();
         res.cookie('hitmee-id', sid);
         res.cookie('hitmee-username', userUsername);
-        res.cookie('hitmee-val', VALIDATION_COMPLETE,{maxAge:300000});
+        res.cookie('hitmee-val', VALIDATION_COMPLETE, {maxAge:300000});
 
         if(type){
             res.redirect(`/success_fail.html?sess=${mf.genHex()}&redirect=home`);
@@ -486,7 +486,6 @@ app.get('/destroy_account', (req, res)=>{
 
 app.get("/api/:username/getFriends", function(req, res) {
     let username = req.params.username;
-    console.time("all-user-request-timer");
     // mongoConn.connect(url, {useNewUrlParser: true}, (err, client)=>{
     // 	if (err) {
     //		MongoErrorHandler(err);
@@ -503,11 +502,10 @@ app.get("/api/:username/getFriends", function(req, res) {
     //	client.close();
     //	}
     // });
-    if(req.session.username === username){
-        res.json(usersOnline);
-    }else{
-        res.json([]);
-    }
+
+    console.time("all-user-request-timer");
+    if (req.session.username === username) res.json(usersOnline);
+    else res.json([]);
     console.timeEnd("all-user-request-timer");
     console.log();
 });
@@ -547,7 +545,6 @@ const readFile = function(path, req, res) {
 };
 
 io.on('connection', function(socket) {
-
     socket.broadcast.emit("receive presence", "online", 0);
 	socket.on('check existing', function(username){
         /** Executed when the user is logging in... */
@@ -558,12 +555,10 @@ io.on('connection', function(socket) {
 		
 				if (err) throw err;
 				
-				if(result.length > 0){
-					socket.emit('existing', true, username);
-				}else{
-					socket.emit('existing', false, username);
-				}
-			});
+                if(result.length > 0) socket.emit('existing', true, username);
+                else socket.emit('existing', false, username);
+            });
+            
 		}catch(err){
 			console.error(err);
 		}
@@ -627,18 +622,15 @@ io.on('connection', function(socket) {
 
     socket.on('connectTo', function(idata, udata) {
         console.time("connect-to-user-timer");
-//      IDATA contains id of the connectee
-//      UDATA contains username of the connector
-
-//      THE FOLLOWING FOR-LOOP WAS USED TO GET THE USERNAME OF THE CONNECTEE FROM THE USERS_ONLINE ARRAY
+        // IDATA contains id of the connectee
+        // UDATA contains username of the connector
+        // THE FOLLOWING FOR-LOOP WAS USED TO GET THE USERNAME OF THE CONNECTEE FROM THE USERS_ONLINE ARRAY
 		try{
             let query = `SELECT username FROM users WHERE uID = '${idata}'`;
-            
-        	sqlConn.query(query, (err, results)=>{
+        	sqlConn.query(query, (err, results) => {
             	if (err) throw err;
-            	// console.log(results);
             	let chattingWith = results[0].username;
-            	socket.emit('init_chatroom', mf.genHex(), chattingWith);
+            	socket.emit('proceed to chatroom', mf.genHex(), chattingWith);
             });
             
 		}catch(err){
@@ -799,8 +791,6 @@ io.on('connection', function(socket) {
                     	console.log(error);
                 	});
             	}
-
-            	// client.close();
            	}
         });
 

@@ -7,7 +7,7 @@ var video_call_button = null,
     timerVideo = null, 
     counter = 0;
 
-var answerVideoState=false, //Determines if callee accepted the call or not
+var answerVideoState = false, //Determines if callee accepted the call or not
     hasReceivedVideoCall = false;
 
 var videoConstraints = {
@@ -65,7 +65,7 @@ function videoPageReady(){
         endVideoCallButton.removeAttribute('disabled');
         endVideoCallButton.addEventListener('click', endVideoCall);
     }else{
-        alert("Sorry, your browser does not support WebRTC");
+        console.log("Sorry, your browser does not support WebRTC");
     }
 
     console.log('video ready');
@@ -188,8 +188,7 @@ function answerVideoCall(){
         }); 
     }else{
         alert("Sorry for this, but you wont be able to pick the video call due to lack of requirement!");
-    }
-    
+    }   
 }
 
 function prepareVideoCall() {

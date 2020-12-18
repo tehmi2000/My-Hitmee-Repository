@@ -11,7 +11,7 @@ function ready_recorder(){
     }
 }
 
-function start_recording(){
+function startRecording(){
     function handleSuccess(stream) {
         var context = new AudioContext();
         var source = context.createMediaStreamSource(stream);
@@ -35,6 +35,6 @@ function start_recording(){
     navigator.mediaDevices.getUserMedia(config).then(handleSuccess);
 }
 
-function stop_recording() {
+function stopRecording() {
     
 }

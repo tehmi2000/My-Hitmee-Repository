@@ -180,23 +180,6 @@ dialog .footer button{
     background-color: transparent;
 }
 
-.content-wrapper .content{
-    display: none;
-    flex-direction: column;
-    justify-content: space-around;
-    padding: 15px;
-    right: 2%;
-    margin-top: 3px;
-    position: absolute;
-    z-index: +1;
-    box-shadow: 1px 2px 3px #161616;
-    border: 1px solid rgba(70, 70, 70, 0.72);
-    border-radius: 2px;
-    background-color: #111;
-    background-repeat: no-repeat;
-    background-image: radial-gradient(ellipse, #1c1c1c 20%, #202020 80%);
-}
-
 #set-button:hover{
     cursor: pointer;
     border-radius: 3px;
@@ -207,42 +190,41 @@ dialog .footer button{
     animation-direction: normal;
 }
 
-.content-wrapper{
-	width: 6rem;
-	/*background-color: #296571;*/
-	height: auto;
-	padding: 1.65rem 0;
-	text-align: center;
-	vertical-align: middle;
+aside.side-menu{
+    position: absolute;
+    top: calc(7rem + 1px);
+    left: calc(70%);
+    background-color: #1e1e1e;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
+    padding: 2rem;
+    border-radius: 3px;
+    height: calc(100vh - 2.9em - 7rem - 0.5rem);
+    width: 30%;
 }
 
-.content-wrapper:hover .content{
-    display: flex;
-}
-
-.content-wrapper .content fieldset{
+aside.side-menu fieldset{
     border: 1px solid rgba(70, 70, 70, 0.63);
 }
 
-.content-wrapper .content legend{
+aside.side-menu legend{
     margin-left: 1rem;
 }
 
-.content-wrapper .content input.toggle{
+aside.side-menu input.toggle{
     width: 0.1px;
     height: 0.1px;
 }
 
-.content-wrapper .content > button{
-    display: flex;
-    flex-direction: row;
+aside.side-menu > button{
+    width: 100%;
     border: none;
-    border-bottom: 1px solid rgba(70, 70, 70, 0.55);
+    border-bottom: 1px solid rgb(41, 41, 41);
     color: #f5f5f7;
-    font-size: 1.4em;
+    font-size: 1.4rem;
+    text-transform: uppercase;
     align-items: center;
-    padding: 8px 8px;
-    margin: 3px 0;
+    padding: 1rem 8px;
+    margin: 1.5rem 0;
     box-sizing: border-box;
     background-color: transparent;
     -webkit-transition: all 0.3s ease;
@@ -251,20 +233,20 @@ dialog .footer button{
 	transition: all 0.3s ease;
 }
 
-.content-wrapper .content button i{
-    color: rgba(94, 228, 177, 0.733);
+aside.side-menu button i{
+    color: teal;
     font-size: 1.8em;
 }
 
-.content-wrapper .content button span{
-    margin:auto 6px;
+aside.side-menu button span{
+    margin:auto 1rem;
     font-family: sans-serif;
 }
 
-.content-wrapper .content button:hover{
+aside.side-menu button:hover{
+    transform: scale(1.03);
     background-color: rgba(56, 90, 134, 0.767);
     border-radius: 5px;
-    /* border-bottom: 2px solid rgb(195, 194, 202); */
     cursor: pointer;
 }
 
@@ -349,15 +331,16 @@ img.user_dp{
 }
 
 .on_contact .chat-name{
-    font-weight: bold;
-    font-size: 1.9rem;
+    text-transform: capitalize;
+    font-weight: 700;
+    font-size: 1.8rem;
 }
 
 .on_contact .display-time{
     font-size: 1.2rem;
 }
 
-.on_contact .chat-name, .on_contact .display-time{
+.on_contact .display-time{
     color: rgb(9, 170, 170);
 }
 
@@ -528,6 +511,13 @@ img.user_dp{
 /* For mobile phones */
 @media only screen and (max-width: 1100px){
 
+    aside.side-menu{
+        left: 40%;
+        padding: 2rem;
+        height: calc(100vh - 2.9em - 7rem - 0.5rem);
+        width: 60%;
+    }
+
     .on_contact > *{
         height: 8rem;
     }
@@ -543,7 +533,7 @@ img.user_dp{
     }
 
     .on_contact .chat-name{
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
 
     .pass-section{

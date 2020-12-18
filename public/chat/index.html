@@ -9,19 +9,15 @@
 
     <link rel="shortcut icon" href="../assets/images/fav-icon.png" type="image/x-icon">
     <link rel="stylesheet" href="../assets/images/icofont/icofont.min.css">
-    <link rel="stylesheet" type="text/css" href="../hitmee.css">
-    <link rel="stylesheet" type="text/css" href="hitmee_chatroom.css">
+    <link rel="stylesheet" href="../hitmee.css">
+    <link rel="stylesheet" href="hitmee_chatroom.css">
     <link rel="stylesheet" href="voice-video-calling.css">
-    
 </head>
 
 <body>
     <audio id="player" src="" autoplay>No support for audio</audio>
     <audio id="ringer" src="" autoplay loop>No support for audio</audio>
-
-    <div id="previewer">
-
-    </div>
+    <div id="previewer"></div>
 
     <header class="header" id='header'>
         <div id="div_1" class="div_1">
@@ -49,7 +45,6 @@
     </header>
 
     <main class="main" id="main-container">
-        
         <div class="callbox" id="callbox">
             <div id="video-call">
                 <div id="video">
@@ -98,8 +93,7 @@
         </div>
 
         <div class="chatbox" id="chatbox">
-            <div class="chat-area" id="chat-area1">
-
+            <div class="cols chat-area" id="chat-area1">
                 <div id="notify" class="notifier">
                     <div class="circle green"></div>
                     <span id="call_notifier_text"></span>
@@ -155,7 +149,7 @@
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="../js/lib/greensock-js/src/minified/TweenMax.min.js"></script>
+    <script src="../js/lib/greensock/minified/gsap.min.js"></script>
     <script src="../hitmee.js"></script>
     <script src="recorder.js"></script>
     <script src="hitmee_chatroom.js"></script>

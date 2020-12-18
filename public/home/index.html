@@ -10,12 +10,12 @@
     <link rel="shortcut icon" href="../assets/images/fav-icon.png" type="image/x-icon">
     <link rel="stylesheet" href="../assets/images/icofont/icofont.min.css">
     <link rel="stylesheet" type="text/css" href='../hitmee.css'>
-    <link rel="stylesheet" type="text/css" href="hitmee_contacts.min.css">
+    <link rel="stylesheet" type="text/css" href="hitmee_contacts.css">
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="../js/lib/greensock/minified/gsap.min.js"></script>
     <script src='../hitmee.js'></script>
-    <script src='hitmee_contacts.min.js'></script>
+    <script src='hitmee_contacts.js'></script>
 </head>
 
 <body>
@@ -65,58 +65,31 @@
         </div>
 
         <div class="content-wrapper">
-            <button id="set-button"><img src="../assets/images/menu-267-6012990.png" alt="" aria-label="more-options"></button>
-            
-            <div class="content">
-                <button onclick="navigatePage('settings')">
-                    <i class="icofont-settings-alt"></i>
-                    <span>My profile settings</span>
-                </button>
-
-                <button onclick="">
-                    <i class="icofont-users-alt-5"></i>
-                    <span>Create Group Chat</span>
-                </button>
-
-                <button onclick="">
-                    <img src='../assets/images/remove-friend.png'>
-                    <span>Remove friend</span>
-                </button>
-
-                <button onclick="navigatePage('logout')">
-                    <i class="icofont-power"></i>
-                    <span>Logout</span>
-                </button>
-
-                <fieldset>
-                    <legend>Voice Assistant</legend>
-                    <div>
-                        <span>Toggle ON/OFF</span>
-                        <span>
-                            <label for="assistant-toggle">tere</label>
-                            <input type="checkbox" name="" class="toggle" id="assistant-toggle" style="position: absolute; z-index: -1;">
-                        </span>
-                    </div>
-                </fieldset>
-            </div>
+            <button id="set-button" class="open"><img src="../assets/images/menu-267-6012990.png" alt="" aria-label="more-options"></button>
         </div>
     </header>
 
-    <main class="main" id="main-container">
+    <aside class="friend-search-box">
+        <div class="head-label close" title="close">
+            <span class="icofont-close close"></span>
+        </div>
+
+        <span class="heading">ADD FRIEND</span>
+
+        <div id="search_container">
+            <input type="text" name="searcher" class="search" id='search' placeholder="Enter Friend ID" autofocus>
+            <input type="submit" onclick="search()" class="search_button" value="Search">
+        </div>
         
-        <div id="sect">
-            <button id="add-friend" class='floating-button add-friend' aria-label="Add-a-friend">
-                <i class="icofont-search-user"></i>
-            </button>
+        <div></div>
+    </aside>
 
-            <section class="status_section">
-
-            </section>
+    <main class="main" id="main-container">
+        <div id="sect" class="rows">
+            <section class="status_section"></section>
 
             <section class="contact_section">
-
                 <div class="contact_box" id="contact_box">
-
                     <dialog id="dialog">
                         <div id="dialog_header" class="header"></div>
                         <img id="full-image" src="" alt="" />
@@ -128,11 +101,11 @@
                     </dialog>
 
                     <div class="on_contact" id="on_contact">
-                        <img src="../assets/images/forest_fog_trees_nature__gg.jpg" alt="[temi's dp]" class="user_dp" onclick="Javascript:showImage(event)"/>
+                        <img src="../assets/images/forest_fog_trees_nature__gg.jpg" alt="temi's dp" class="user_dp" onclick="Javascript:showImage(event)"/>
                         
                         <div class="cols display-container">
                             <div class="rows">
-                                <span class="chat-name">HITMEE APP</span>
+                                <span class="chat-name">Hitmee App</span>
                                 <span class="display-time"><i>Time</i></span>
                             </div>
                             <div class="rows">
@@ -149,30 +122,40 @@
                 </div>
             </section>
 
-            <section class="call_section">
+            <section class="call_section"></section>
 
-            </section>
+            <button id="add-friend" class='floating-button add-friend' aria-label="Add-a-friend"><i class="icofont-search-user"></i></button>
         </div>
 
-        <footer class="rows foot_note" id="foot_note">
-            <span>Powered By DeePlug Gadgets&trade;</span>
-        </footer>
+        <aside class="cols side-menu">
+            <button class="rows" onclick="navigatePage('settings')">
+                <i class="icofont-settings-alt"></i>
+                <span>My profile settings</span>
+            </button>
+
+            <button class="rows" onclick="">
+                <i class="icofont-users-alt-5"></i>
+                <span>Create Group Chat</span>
+            </button>
+
+            <button class="rows" onclick="">
+                <i class="icofont-moon"></i>
+                <span>Dark/Light Mode</span>
+            </button>
+
+            <button class="rows" onclick="">
+                <img src='../assets/images/remove-friend.png'>
+                <span>Remove friend</span>
+            </button>
+
+            <button class="rows" onclick="navigatePage('logout')">
+                <i class="icofont-power"></i>
+                <span>Logout</span>
+            </button>
+        </aside>
     </main>
 
-    <aside class="friend-search-box">
-        <div class="head-label close" title="close">
-            <span class="icofont-close close"></span>
-        </div>
-        <span class="heading">ADD FRIEND</span>
-        <div id="search_container">
-            <input type="text" name="searcher" class="search" id='search' placeholder="Enter Friend ID" autofocus>
-            <input type="submit" onclick="search()" class="search_button" value="Search">
-        </div>
-        
-        <div>
-
-        </div>
-    </aside>
+    <footer class="rows foot_note" id="foot_note"><span>Powered By DeePlug Gadgets&trade;</span></footer>
 </body>
 
 </html>

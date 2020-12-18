@@ -66,7 +66,7 @@ function voicePageReady(){
         endVoiceCallButton.addEventListener('click', endVoiceCall);
 
     }else{
-        alert("Sorry, your browser does not support WebRTC");
+        console.log("Sorry, your browser does not support WebRTC");
     }
 
     console.log('voice ready');
@@ -121,8 +121,6 @@ function makeVoiceCall(){
         });
     }
 
-
-
 	try{
 		get("ringer").src="../tones/ringing.mp3";
 	}catch(e){
@@ -130,22 +128,22 @@ function makeVoiceCall(){
 	}
 	
     currentScreen = get('chatbox');
-    currentScreen.style.display='none';
+    currentScreen.style.display = 'none';
 
     currentScreen = get('callbox');
-    currentScreen.style.display='block';
+    currentScreen.style.display = 'block';
 
     currentScreen = get('video-call');
-    currentScreen.style.display='none';
+    currentScreen.style.display = 'none';
 
     currentScreen = get('voice-call');
-    currentScreen.style.display='block';
+    currentScreen.style.display = 'block';
     
     currentScreen = get('ring_screen');
-    currentScreen.style.display='flex';
+    currentScreen.style.display = 'flex';
     
     currentScreen = get('voice_call_screen');
-    currentScreen.style.display='none';
+    currentScreen.style.display = 'none';
 
   	currentScreen = get('DI');
 

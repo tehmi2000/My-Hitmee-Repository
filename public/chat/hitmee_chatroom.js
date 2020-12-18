@@ -1,7 +1,7 @@
 'use strict';
 
 let media = "";
-let upload_media = "";
+let uploadMedia = "";
 
 let player = null;
 let username = null;
@@ -12,50 +12,45 @@ let data_p = null;
 
 const postHandler = {
     record: {
-        start: start_recording,
-        stop: stop_recording
+        start: startRecording,
+        stop: stopRecording
     },
     post: post
 };
 
-const messageHandler = {
-
-};
+const messageHandler = {};
 
 const textboxHandler = {
     input: function() {
         let speed = 0.005;
         if(get("tb1").value == ""){
-            TweenMax.to("#post", speed, {zIndex: -1, opacity: 0, display: "none", ease: Power0.none});
-            TweenMax.to("#record-audio", speed, {zIndex: +1, opacity: 1, display: "flex", ease: Power0.none});
+            gsap.to("#post", speed, {zIndex: -1, opacity: 0, display: "none", ease: Power0.none});
+            gsap.to("#record-audio", speed, {zIndex: +1, opacity: 1, display: "flex", ease: Power0.none});
         }else{
-            TweenMax.to("#post", speed, {zIndex: +1, opacity: +1, display: "block", ease: Power0.none});
-            TweenMax.to("#record-audio", speed, {zIndex: -1, opacity: 0, display: "none", ease: Power0.none});
+            gsap.to("#post", speed, {zIndex: +1, opacity: +1, display: "block", ease: Power0.none});
+            gsap.to("#record-audio", speed, {zIndex: -1, opacity: 0, display: "none", ease: Power0.none});
         }
     },
 
     focus: function() {
         get("msg_type_wrapper").style.visibility = "visible";
-        TweenMax.to("#msg_type_wrapper", 0.5, {opacity: 1, marginTop: "5px", ease: Power0.none});
+        gsap.to("#msg_type_wrapper", 0.5, {opacity: 1, marginTop: "5px", ease: Power0.none});
     },
 
     blur: function() {
-        TweenMax.to("#msg_type_wrapper", 0.5, {opacity: 0, marginTop: "-4.9rem", ease: Power0.none, onComplete:function() {
+        gsap.to("#msg_type_wrapper", 0.5, {opacity: 0, marginTop: "-4.9rem", ease: Power0.none, onComplete:function() {
             get("msg_type_wrapper").style.visibility = "hidden";
         }});
     }
 };
 
-//  SOCKET SECTION
-
+// SOCKET CONNECTIONS
 socket.on('receiveMessage', function(data, uID){
     receive(data.sender, data);
 });
 
 socket.on('update-message-state', function(object) {
-    // debugger;
     let newImage = "";
-
     switch (object.state) {
         case 1:
             newImage = "icofont-check";
@@ -69,23 +64,22 @@ socket.on('update-message-state', function(object) {
             break;
     }
 
-    const ref_message = get("i_"+object.id);
-    if(ref_message){
+    const refMessage = get("i_"+object.id);
+    if(refMessage){
         try{
-            ref_message.classList.replace(ref_message.getAttribute("class"), newImage);
+            refMessage.classList.replace(refMessage.getAttribute("class"), newImage);
         }catch(err){
-            ref_message.removeAttribute("class");
-            ref_message.setAttribute("class", newImage);
+            refMessage.removeAttribute("class");
+            refMessage.setAttribute("class", newImage);
         }
     }
 });
 
 socket.on("update deleted messages", function(message_ids){
-    // log(message_ids);
-    message_ids.forEach(message_id=>{
-        log(message_id.id);
-        
+    message_ids.forEach(message_id => {
         let element = get("mw_"+message_id.id);
+        log(message_id.id);
+
         if(element){
             log(element);
             element.parentNode.removeChild(element);
@@ -98,30 +92,22 @@ socket.on('set preferences', (settings) => {
 });
 
 socket.on('isTyping', function (data, sender, uID) {
-    if(sender == getCookie('chattingWith').value){
-        if (data == true) {
-            changeStatus('typing');
-        }else{
-            changeStatus('idle');
-        }
+    if(sender === getStoredData('chattingWith')){
+        if (data === true) changeStatus('typing');
+        else changeStatus('idle');
     }
 });
 
 socket.on('add2Chat', function(data, picture){
-    // alert('adding to chats :'+JSON.stringify(data));
     data_p.setAttribute('src', picture);
-    
-    for (let index = 0; index < data.length; index++) {
-       chats.push(data[index]);
-    }
 
-    for (let index = 0; index < chats.length; index++) {
-        restore(chats[index]);
-    }
+    data.forEach(chatItem => {
+        chats.push(chatItem);
+    });
 
-    // var media_list = document.querySelectorAll("[data-src]");
-    // loadMedias(media_list);
-    // log(media_list);
+    chats.forEach(chatItem => {
+        restore(chatItem);
+    });
 });
 
 socket.on("disconnect", function() {
@@ -132,13 +118,9 @@ socket.on("receive presence", function(status, time){
     log(status);
 	try{
 		const stat1 = get('status1');
-		if(status == "online"){
-			stat1.innerHTML = status;
-		}else{
-			if(status == "offline"){
-				stat1.innerHTML = "Last seen today by " + time;
-			}
-		}
+		if(status === "online") stat1.innerHTML = status;
+        else if(status === "offline") stat1.innerHTML = `Last seen today by ${time}`;
+        
 	}catch(e){
         log("Error at hitmee_chatroom.js: line 49\nError: ", e.message);
     }
@@ -152,10 +134,10 @@ document.addEventListener("keydown", function(keyEvent){
     }
 });
 
-document.addEventListener("DOMContentLoaded", function (event) {
+document.addEventListener("DOMContentLoaded", function (ev) {
 	try{
         // Initialise variables and states
-        const chat = formatName(getCookie("chattingWith").value);
+        const chat = formatName(getStoredData("chattingWith"));
         player = get('player');
         username = get('uname');
         chatArea1 = get('chat-area1');
@@ -164,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         data_p = get('DP');
 
         stat1.innerHTML = 'checking...';
-        socket.emit('get preferences', getCookie("hitmee-username").value);
+        // socket.emit('get preferences', getCookie("hitmee-username").value);
         const div1 = createComponent("DIV", 'Chats are safe and secured');
         div1.setAttribute('id', 'starter');
         chatArea1.appendChild(div1);
@@ -172,8 +154,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
         username.innerHTML = chat;
         document.title = `${getCookie("hitmee-username").value} | You're chatting with ${chat}`;
 
-        socket.emit('get presence', chat);
-        socket.emit('getChat', getCookie("hitmee-username").value, chat);
+        // socket.emit('get presence', chat);
+        // socket.emit('getChat', getCookie("hitmee-username").value, chat);
 
         // Initialise video and voice calling and message modes
         try{
@@ -202,7 +184,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
         get("post").addEventListener("click", postHandler.post);
 
-        setTimeout(()=>{
+        setTimeout(() => {
             socket.emit("read message", "New", ["529084457472720060", "18919991706188856"]);
             log("Timer");
         }, 20000);
@@ -214,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 });
 
 function post(evt){
-    function addProgress(target_id){
+    let addProgress = target_id => {
         const progress = create("PROGRESS");
         progress.setAttribute("id", "prog_"+target_id);
         progress.setAttribute("min", "0");
@@ -223,7 +205,7 @@ function post(evt){
         get("mw_"+target_id).appendChild(progress);
     }
 
-    function generateDummyMessages(number_of_messages, message){
+    let generateDummyMessages = function (number_of_messages, message){
         for (let i = 0; i<number_of_messages; i++){
             createMessageObject("text", `Message ${i} is ${message}`);
         }
@@ -291,14 +273,10 @@ function post(evt){
 
     // Create a template object that stores each users message details. This template is sent to the server and used to create the displayed message 
     function createMessageObject(type, contents) {
-        let date=new Date(),
-            mid=Math.random()*(10e17),
-            content = contents.media,
-            time_string=formatTime(date.getHours(), date.getMinutes());
-
+        let date = new Date(), mid = Math.random()*(10e17), content = contents.media, time_string = formatTime(date.getHours(), date.getMinutes());
         const object_structure = {
             sender: getCookie('hitmee-username').value,
-            receipient: getCookie('chattingWith').value,
+            receipient: getStoredData('chattingWith'),
             message : {
                 mode : null,
                 messageID : mid,
@@ -334,8 +312,8 @@ function post(evt){
                     mode: "normal"
                 });
 
-                if(type == "video" || type == "image" || type == "audio"){
-                    upload(upload_media, 0, object_structure);
+                if(type === "video" || type === "image" || type === "audio"){
+                    upload(uploadMedia, 0, object_structure);
                     addProgress(mid);
                 }else{
                     socket.emit('sendMsg2Server', object_structure);
@@ -417,8 +395,8 @@ function post(evt){
         inputBox1.value = "";
 
         // Change the button to a record button after clearing text input
-        TweenMax.to("#post", 0.005, {zIndex: -1, opacity: 0, display: "none", ease: Power0.none});
-        TweenMax.to("#record-audio", 0.005, {zIndex: +1, opacity: 1, display: "flex", ease: Power0.none});
+        gsap.to("#post", 0.005, {zIndex: -1, opacity: 0, display: "none", ease: Power0.none});
+        gsap.to("#record-audio", 0.005, {zIndex: +1, opacity: 1, display: "flex", ease: Power0.none});
 
         emitTyping(false);
     }
@@ -480,7 +458,7 @@ function post(evt){
 function receive(sender, message_object) {
     log(message_object);
 
-    if(sender === getCookie("chattingWith").value){
+    if(sender === getStoredData("chattingWith")){
         let date = new Date();
         let time_string = formatTime(date.getHours(), date.getMinutes());
 
@@ -570,7 +548,7 @@ function updateLocalChat(array, mid, type, msg){
 function emitTyping(switches) {
     // switches contains true or false
     const sent_from = getCookie('hitmee-username').value;
-    const sent_to = getCookie('chattingWith').value;
+    const sent_to = getStoredData('chattingWith');
 
     switch(switches){
         case true:
@@ -593,7 +571,7 @@ function emitTyping(switches) {
 function containerAnimation() {
     const container = get('ec');
     const closeContainer = function(){
-        TweenMax.to("#ec", 0.30, {height : 0, onComplete: function() {
+        gsap.to("#ec", 0.30, {height : 0, onComplete: function() {
             container.innerHTML = '';
             container.style.display = 'none';
         }, onStart: function() {
@@ -604,7 +582,7 @@ function containerAnimation() {
     if(container.style.display != 'flex'){
         container.style.display = 'flex';
         container.style.height = '0px';
-        TweenMax.to("#ec", 0.30, {height : "auto", onStart: function(evt) {
+        gsap.to("#ec", 0.30, {height : "auto", onStart: function(evt) {
             get("chat-area1").style.filter = "blur(1px)";
         }});  // 0.25*window.innerHeight
         return {state : 'open', container : container};
@@ -639,6 +617,7 @@ function displayFileOption() {
 
             let image_holder = create("IMG"),
                 progress_bar = create('progress'),
+                buttonWrapper = create("DIV", null, ['rows']),
                 sender_button = createComponent("BUTTON", "SEND"),
                 cancel_button = createComponent("BUTTON", "CANCEL");
             
@@ -674,9 +653,9 @@ function displayFileOption() {
                 }
             });
             
-            const fileWorker = new Worker("js/workers/fileWorker.js");
+            const fileWorker = new Worker("/js/workers/fileWorker.js");
             const file = event.target.files[0];
-            upload_media = file;
+            uploadMedia = file;
             
             log(file);
 
@@ -713,7 +692,8 @@ function displayFileOption() {
                 }
             };
 
-            joinComponent(get("previewer"), progress_bar, image_holder, cancel_button, sender_button);
+            buttonWrapper = joinComponent(buttonWrapper, cancel_button, sender_button);
+            joinComponent(get("previewer"), progress_bar, image_holder, buttonWrapper);
 
         }else{
             const button_dismiss = createComponent("BUTTON", "DISMISS");
@@ -733,11 +713,11 @@ function displayFileOption() {
         if(window.File && window.FileReader && event.target.files[0]){
             log("File Api supported for audio");
 
-            const fileWorker = new Worker("js/workers/fileWorker.js");
+            const fileWorker = new Worker("/js/workers/fileWorker.js");
             const file = event.target.files[0];
             log("File size: ", event.target.files[0].size);
 
-            upload_media = file;
+            uploadMedia = file;
 
             fileWorker.postMessage({
                 file: file
@@ -794,9 +774,9 @@ function displayFileOption() {
             if(event.target.files[0]){
                 get("previewer").style.display= "flex";
 
-                const fileWorker = new Worker("js/workers/fileWorker.js");
+                const fileWorker = new Worker("/js/workers/fileWorker.js");
                 const file = event.target.files[0];
-                upload_media = file;
+                uploadMedia = file;
 
                 const max_length = 100000000;
                 const truncated_file = (file.size > max_length)? file.slice(0, max_length) : file;
@@ -944,13 +924,10 @@ function displayFileOption() {
         //     </div>
         // </div>
 
-        let closeButton = create("DIV");
-            let div0 = create("DIV");
-                let span0 = create("SPAN");
+        let closeButton = createComponent("DIV", null, ["lg-100", "cols"]);
+            let div0 = createComponent("DIV", null, ["head-label"]);
+                let span0 = createComponent("SPAN", null, ["icofont-close"]);
 
-        closeButton.classList.add("fill-container", "cols");
-        div0.classList.add("head-label");
-        span0.classList.add("icofont-close");
         span0.setAttribute("title", "close");
 
         closeButton.addEventListener("click", function() {
@@ -959,34 +936,30 @@ function displayFileOption() {
 
         div0.appendChild(span0);
         closeButton.appendChild(div0);
-
         container.appendChild(closeButton);
 
         for (let index = 0; index < no_of_options; index++) {
 
-            let option_wrap = create('DIV'),
-                    option_label = create("label"),
+            let option_wrap = createComponent('DIV', null, ['file-option-wrap']),
+                    option_label = createComponent("label", null, ['cols', 'file-option']),
                         image = create('I'),
                     option = create('INPUT'),
                     description = create('DIV');
 
             option.setAttribute("type", "file");
-        
-            option_label.classList.add('file-option');
-            option_wrap.classList.add('file-option-wrap');
             option.addEventListener("click", function(evt) {
-                let result = containerAnimation();
+                containerAnimation();
             });
 
             switch (index) {
                 case 0: // Image
                     option_label.setAttribute("for", "image-select");
+                    option.style.backgroundColor = 'rgba(73, 73, 73, 0.937)';
                     option.setAttribute("id", "image-select");
                     option.setAttribute("accept", "image/*");
 
                     description.innerHTML = "Picture";
                     image.classList.add('icofont-picture');
-                    option.style.backgroundColor = 'rgba(73, 73, 73, 0.937)';
 
                     option.addEventListener('change', pictureOptionHandler);
                     option_label.appendChild(image);
@@ -1067,6 +1040,7 @@ function displayFileOption() {
                     option_wrap = joinComponent(option_wrap, option_label, option, description);
                     
                     break;
+
                 default:
                     alert('Nothing yet');
                     break;
@@ -1079,25 +1053,37 @@ function displayFileOption() {
     let result = containerAnimation();
     if(result.state =='open'){
         const values = [ 'lilac', 'purple', 'black', 'red', 'brown', 'green', 'tan', 'salmon', 'wine', 'maroon' ];
-        result.container.style.justifyContent = "space-around";
+        result.container.style.justifyContent = "center";
         createOption(result.container, 6, values);
-    }else{
-
     }
 }
 
 function createAndDisplayEmoji() {
     
     function createEmoji(container, no_of_emoji, value) {
+        let closeButton = createComponent("DIV", null, ["lg-100", "cols"]);
+            let div0 = createComponent("DIV", null, ["head-label"]);
+                let span0 = createComponent("SPAN", null, ["icofont-close"]);
+
+        span0.setAttribute("title", "close");
+
+        closeButton.addEventListener("click", function() {
+            containerAnimation();
+        });
+
+        div0.appendChild(span0);
+        closeButton.appendChild(div0);
+        container.appendChild(closeButton);
+
         for (let index = 0; index < no_of_emoji; index++) {
             const option = createComponent('DIV', String.fromCodePoint(value[index]));
-            option.classList.add('emoji-option');
+            option.classList.add('rows', 'emoji-option');
 
             option.setAttribute('id', value[index]);
 
-            option.addEventListener('click', function(event){
+            option.addEventListener('click', function(ev){
                 let inputBox = get('tb1');
-                inputBox.value = inputBox.value + String.fromCodePoint(event.currentTarget.id)+' ';
+                inputBox.value = `${inputBox.value}${String.fromCodePoint(ev.currentTarget.id)} `;
                 inputBox.value = inputBox.value;
             });
 
@@ -1118,7 +1104,7 @@ function createAndDisplayEmoji() {
                         0x1F644, 0x1F62C,
                         0x1F526, 0x1F527, 0x1F528, 0x1F529, 0x1F530, 0x1F531
                           ];
-        result.container.style.justifyContent = "unset";
+        result.container.style.justifyContent = "flex-start";
         createEmoji(result.container, values.length, values);
     }
 }
@@ -1170,7 +1156,7 @@ function upload(file, count, body) {
             case 'loaded':
                 socket.emit("upload", {
                     sender: getCookie("hitmee-username").value,
-                    receipient: getCookie("chattingWith").value,
+                    receipient: getStoredData("chattingWith"),
                     body: body,
                     file: {
                         name: file.name,
@@ -1196,16 +1182,16 @@ function upload(file, count, body) {
 }
 
 socket.on("upload-next", function(object) {
-    // log((object.slice_count/(Math.round(upload_media.size/100000)))*100);
+    // log((object.slice_count/(Math.round(uploadMedia.size/100000)))*100);
     if(get("prog_"+object.id)){
-        let value = (object.slice_count/(Math.round(upload_media.size/100000)))*100;
+        let value = (object.slice_count/(Math.round(uploadMedia.size/100000)))*100;
         get("prog_"+object.id).setAttribute("value", value);
     }
-    upload(upload_media, object.slice_count);
+    upload(uploadMedia, object.slice_count);
 });
 
 socket.on("upload-end", function(object) {
-    upload_media = "";
+    uploadMedia = "";
     media = object.path;
 
     if(get("prog_"+object.body.message.messageID)){

@@ -426,48 +426,6 @@ input[name="username"]+button i[class="icofont-refresh"]{
     /* animation: name duration timing-function delay iteration-count direction fill-mode; */
 }
 
-
-/* .login-wrapper{
-    /* #665de7, 96abcd
-    #4ece81, #21cea4, 287deg 
-    #ce5c3e, #e3a317, 327deg
-    margin: 15px auto;
-    background-image: linear-gradient(287deg, #4ece81, #21cea4);
-    padding: 1rem 2rem;
-    max-width: 50%;
-    box-sizing: border-box;
-    /* border-radius: 5px; 
-    box-shadow: 1px 2px 3px #b6b6b6;
-    -webkit-transition: all 0.5s ease-in;
-    -moz-transition: all 0.5s ease-in;
-    -ms-transition: all 0.5s ease-in;
-    -o-transition: all 0.5s ease-in;
-    transition: all 0.5s ease-in;
-}
-
-.login-extra{
-	display: none;
-	flex-direction: row;
-    max-width: 100%;
-}
-
-.login-extra div{
-    display: flex;
-    flex-direction: column;
-}
-
-.login-extra input{
-	font-size: 0.9em;
-	width:100%;
-	height:auto;
-	margin: 10px 0;
-	padding: 10px 10px;
-	border: none;
-	box-sizing: border-box;
-	box-shadow: 1px 1px 2px #9e9e9e;
-	border-radius: 3px;
-} */
-
 .serror{
     width:100%;
     color: rgb(233, 33, 51); 
@@ -662,15 +620,23 @@ input[type="submit"]:not([disabled]):hover{
         flex-direction: column !important;
         margin-bottom: 0;
         margin-top: 0.5rem;
+        padding-left: 0;
+        padding-right: 0;
     }
 
     header nav{
+        position: sticky;
+        top: 0;
         flex-wrap: wrap;
         justify-content: center;
         margin: 2rem auto 0.5rem auto;
-        padding: 1rem 2.5rem;
+        padding: 1rem;
         background-color: #0caa4b;
-        border-radius: 5vh;
+        border-radius: 0 0 10px 10px;
+    }
+
+    header nav > *{
+        font-size: 1.3rem;
     }
     
     main > *{
@@ -689,6 +655,10 @@ input[type="submit"]:not([disabled]):hover{
     main .element div.sections{
         flex-direction: column !important;
         align-items: center;
+    }
+
+    main .element img{
+        max-width: 90vw;
     }
 
     main .element .element-btn{

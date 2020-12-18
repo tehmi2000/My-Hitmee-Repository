@@ -67,13 +67,6 @@ socket.on('connectedTo', function(data) {
 });
 
 // In-app functions
-
-/**
- * 
- * @param {*} page
- * @param {*} sessId 
- * @param {*} buddyName 
- */
 function navigatePage(page, sessId, buddyName){
     
     sessId = sessId || 'null user';
@@ -106,45 +99,57 @@ function navigatePage(page, sessId, buddyName){
     
 }
 
-/**
- * 
- * @param {*} hours 
- * @param {*} minutes 
- */
 function formatTime(hours, minutes) {
-    var ampm=(hours>=12)? 'PM' : 'AM';
-    var fhours=(hours>12)? hours-12 : hours;
-    var fmin=(JSON.stringify(minutes).length==1)? '0'+minutes : minutes;
-    var ftime=fhours+':'+fmin+' '+ampm;
+    var ampm = (hours >= 12)? 'PM' : 'AM';
+    var fhours = (hours>12)? hours - 12 : hours;
+    var fmin = (JSON.stringify(minutes).length === 1)? `0${minutes}` : minutes;
+    var ftime = fhours+':'+fmin+' '+ampm;
     return ftime;
 }
 
 function changeStatus(type){
-    var status='';
+    var status = '';
     switch(true){
-        case (type=='hover'):
-            status="tap for more details";
+        case (type === 'hover'):
+            status = "tap for more details";
             break;
-        case (type=='typing'):
-            status="<i>typing...</i>";
+
+        case (type === 'typing'):
+            status = "<i>typing...</i>";
             break;
-        case (type=='idle'):
+
+        case (type === 'idle'):
         	socket.emit("get presence", getCookie("chattingWith").value)
             break;
+
         default:
             status="online";
     }
-    stat1=get('status1');
+    stat1 = get('status1');
     stat1.innerHTML=status;
 }
 
 function getCookie(name){
-    arrayCookie=(document.cookie).split(';');
+    let arrayCookie = (document.cookie).split(';');
     for (let index = 0; index < arrayCookie.length; index++) {
         if (arrayCookie[index].indexOf(name)!=-1) {
             return {name : decodeURI(arrayCookie[index].split('=')[0]), value : decodeURI(arrayCookie[index].split('=')[1])};
         }
     }
+}
+
+function setCookie(name, value){
+    document.cookie = `${document.cookie}${name}=${value};`;
+}
+
+function getStoredData(key){
+    if ('sessionStorage' in window) return sessionStorage.getItem(key);
+    else return getCookie(key).value;
+}
+
+function addStoredData(key, value) {
+    if ('sessionStorage' in window) sessionStorage.setItem(key, value);
+    else setCookie(key, value);
 }
 
 function formatName(str){
@@ -219,17 +224,15 @@ function getQuery() {
 
 function get(selector) {
     
-    if(typeof selector == "string"){
-        if(selector.startsWith(".")){
-            selector = selector.replace(".", '');
-            return document.getElementsByClassName(selector);
-        }else if(selector.startsWith("*")){
+    if(typeof selector === "string"){
+        if(selector.startsWith("*")){
             selector = selector.replace("*", '');
             return document.querySelectorAll(selector);
         }else{
             return document.getElementById(selector);
         }
     }
+
     return null;
 }
 
