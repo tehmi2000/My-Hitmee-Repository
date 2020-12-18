@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
+    "start": "npm install && node server.js",
     "dev-start": "start mongod --journal && start netsh wlan start hostednetwork && nodemon server.js"
   },
   "author": "Temiloluwa",
