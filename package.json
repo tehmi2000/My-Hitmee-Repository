@@ -14,7 +14,7 @@
   "author": "Temiloluwa",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^7.2.6",
+    "@sendgrid/mail": "^8.0.0",
     "body-parser": "*",
     "cloudinary": "^1.23.0",
     "cookie-parser": "^1.4.3",
@@ -27,7 +27,7 @@
     "mysql": "^2.16.0",
     "nodemailer": "^6.3.0",
     "path": "^0.12.7",
-    "socket.io": "^2.2.0"
+    "socket.io": "^4.8.0"
   },
   "devDependencies": {}
 }
